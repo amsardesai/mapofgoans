@@ -1,8 +1,17 @@
+// Routes file
 
-/*
- * GET home page.
- */
+module.exports = function(app) {
+	app.get("*", function(req, res, next) {
+		res.header("X-UA-Compatible", "IE=edge");
+		res.header("Content-type", "text/html;charset=UTF-8");
+		next();
+	});
 
-exports.index = function(req, res){
-  res.render('index');
+	app.get("/", function(req, res) {
+		res.render("index");
+	});
+
+	app.get("/upload", function(req, res) {
+		res.render("upload");
+	});
 };

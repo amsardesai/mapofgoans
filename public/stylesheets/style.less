@@ -10,9 +10,12 @@ table { border-collapse: collapse; border-spacing: 0; }
 /* ACTUAL CSS */
 @import url("http://fonts.googleapis.com/css?family=Rock+Salt");
 
+@color-1: #FFA473;
+@color-2: #5FD4B1;
+
 
 @header-font: "Rock Salt", cursive;
-@header-color: #FF9969;
+@header-color: @color-1;
 @header-height: 60px;
 
 
@@ -24,6 +27,8 @@ html {
 body {
 	height: 100%;
 	font-size: 15px;
+	box-sizing: border-box;
+	padding-top: @header-height;
 }
 
 header {
@@ -31,19 +36,20 @@ header {
 	top: 0;
 	left: 0;
 	right: 0;
-	z-index: 2;
-	height: @header-height;
+	height: @header-height - 2px;
 	background-color: @header-color;
+	border-bottom: 2px solid darken(@header-color, 30%);
 	.container {
 		max-width: 700px;
 		margin: auto;
+		text-align: center;
 		.logo {
 			font-family: @header-font;
 			font-size: 150%;
-			display: inline-block;
-			float: left;
+			//display: inline-block;
+			//float: left;
 			padding: 18px;
-			color: lighten(@header-color, 30%);
+			color: #ffffff;
 		}
 	}
 
@@ -51,21 +57,10 @@ header {
 
 #mapcanvas {
 	height: 100%;
-	.controlOffset {
-		height: @header-height;
-	}
 }
 
-@media screen and (max-width: 720px) {
-	header {
-		position: static; 
-	}
-	#mapcanvas {
-		height: 500px;
-		.controlOffset {
-			height: 0;
-		}
-	}
+@media screen and (max-width: 960px) {
+
 }
 
 

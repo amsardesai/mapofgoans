@@ -1,3 +1,6 @@
+var color1 = "#FFA473";
+var color2 = "#5FD4B1";
+
 
 
 var initialize = function() {
@@ -63,7 +66,7 @@ var initialize = function() {
 		},{
 			"featureType": "water",
 			"stylers": [
-				{ "color": "#75B4FF" }
+				{ "color": color2 }
 			]
 		},{
 			"elementType": "labels",
@@ -96,10 +99,6 @@ var initialize = function() {
 	var map = new google.maps.Map(document.getElementById("mapcanvas"), mapOptions);
 	map.setOptions({ styles: styleArray });
 
-	var emptyDiv = document.createElement('div');
-	emptyDiv.className = 'controlOffset';
-	emptyDiv.index = 0;
-	map.controls[google.maps.ControlPosition.TOP_RIGHT].push(emptyDiv);
 
 	// Limit the zoom level
 	var minZoomLevel = 3;
