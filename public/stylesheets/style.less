@@ -10,10 +10,24 @@ html, body {
 	height: 100%;
 }
 
-#mapcanvas {
-	height: 100%;
+header {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	opacity: 0.8;
+	z-index: 2;
+	height: 60px;
+	background-color: #FF9969;
+
 }
 
+#mapcanvas {
+	height: 100%;
+	.controlOffset {
+		height: 60px;
+	}
+}
 
 
 
