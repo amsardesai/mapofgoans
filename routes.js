@@ -2,7 +2,7 @@
 
 module.exports = function(app) {
 	app.get("*", function(req, res, next) {
-		res.header("X-UA-Compatible", "IE=edge");
+		res.header("X-UA-Compatible", "IE=edge,chrome=1");
 		res.header("Content-type", "text/html;charset=UTF-8");
 		next();
 	});

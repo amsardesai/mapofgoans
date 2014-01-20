@@ -8,14 +8,16 @@ blockquote:before, blockquote:after, q:before, q:after { content: ''; content: n
 table { border-collapse: collapse; border-spacing: 0; }
 
 /* ACTUAL CSS */
-@import url("http://fonts.googleapis.com/css?family=Rock+Salt");
+@import url("http://fonts.googleapis.com/css?family=Schoolbell|Ropa+Sans");
 
-@color-1: #FFA473;
-@color-2: #5FD4B1;
+@color-1: #00B2FF;
+@color-2: #FFA200;
+@color-3: #FF6200;
 
+@header-font: "Schoolbell", cursive;
+@sidebar-font: "Ropa Sans", sans-serif;
 
-@header-font: "Rock Salt", cursive;
-@header-color: @color-1;
+@header-color: @color-2;
 @header-height: 60px;
 
 
@@ -32,27 +34,36 @@ body {
 }
 
 header {
-	position: fixed;
+	position: absolute;
 	top: 0;
 	left: 0;
 	right: 0;
-	height: @header-height - 2px;
+	height: @header-height - 30px;
 	background-color: @header-color;
-	border-bottom: 2px solid darken(@header-color, 30%);
-	.container {
-		max-width: 700px;
-		margin: auto;
-		text-align: center;
-		.logo {
-			font-family: @header-font;
-			font-size: 150%;
-			//display: inline-block;
-			//float: left;
-			padding: 18px;
-			color: #ffffff;
-		}
-	}
+	border-bottom: 5px solid @color-3;
+	border-top: 5px solid @color-3;
+	text-align: center;
+	font-family: @header-font;
+	font-size: 200%;
+	padding: 11px 0 9px 0;
+	color: #ffffff;
 
+}
+
+section {
+	position: absolute;
+	top: @header-height + 20px;
+	left: 20px;
+	width: 200px;
+	padding: 15px;
+	color: #fff;
+	font-family: @sidebar-font;
+	font-size: 130%;
+	text-align: center;
+	line-height: 1.5;
+	border: 5px solid @color-3;
+	background-color: @color-2;
+	overflow-y: scroll;
 }
 
 #mapcanvas {
@@ -61,6 +72,18 @@ header {
 
 @media screen and (max-width: 960px) {
 
+}
+
+@media screen and (max-width: 540px) {
+	header {
+		.container {
+			.logo {
+				.hidden {
+					display: none;
+				}
+			}
+		}
+	}
 }
 
 
