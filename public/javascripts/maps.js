@@ -6,34 +6,73 @@ var color3 = "#FF6200";
 
 var datapoints = [
 	{
-		location: "hi1",
+		city: "Toronto, ON",
 		positionX: 40,
 		positionY: -100,
-		population: 3
+		population: 3,
+		people: [
+			{
+				name: "Nita Sardesai"
+			}
+		]
 	},
 	{
-		location: "hi2",
+		city: "New York, NY",
 		positionX: 42,
 		positionY: -98,
-		population: 6
+		population: 6,
+		people: [
+			{
+				name: "Arka Ganguli"
+			}, {
+				name: "Habeeb Ahmed"
+			}
+		]
 	},
 	{
-		location: "hi3",
+		city: "Miami, FL",
 		positionX: 44,
 		positionY: -95,
-		population: 2
+		population: 2,
+		people: [
+			{
+				name: "Ankit Sardesai"
+			}, {
+				name: "Mahesh Sardesai"
+			}, {
+				name: "Meghana Pramod"
+			}, {
+				name: "Anmol Gupta"
+			}
+		]
 	},
 	{
-		location: "hi4",
+		city: "Charlottetown, PE",
 		positionX: 40,
 		positionY: -96,
-		population: 15
+		population: 15,
+		people: [
+			{
+				name: "Aanchal Bajaj"
+			}, {
+				name: "Aditi Banerjee"
+			}
+		]
 	},
 	{
-		location: "hi5",
+		city: "Vancouver, BC",
 		positionX: 48,
 		positionY: -95,
-		population: 100
+		population: 100,
+		people: [
+			{
+				name: "Sanga Yoganathan"
+			}, {
+				name: "Pooja Sardesai"
+			}, {
+				name: "Khadeeja Sajid"
+			}
+		]
 	}
 ];
 
@@ -140,8 +179,10 @@ $(function() {
 	map.setOptions({ styles: styleArray });
 	
 	for (var i = 0; i < datapoints.length; i++) {
-		var scale = Math.log(datapoints[i].population) / Math.log(1.15);
-		markers.push(new google.maps.Marker({
+		var population = datapoints[i].population;
+		var scale = Math.log(population) / Math.log(1.15);
+
+		var curMarker = new google.maps.Marker({
 			position: new google.maps.LatLng(datapoints[i].positionX,datapoints[i].positionY),
 			map: map,
 			icon: {
@@ -150,33 +191,70 @@ $(function() {
 				strokeOpacity: 0,
 				strokeWeight: 0,
 				scale: scale
-			}
-		}));
+			},
+			title: "hi"
+		});
+
+		markers.push(curMarker);
+
+		var tooltip = new Tooltip({
+			marker: curMarker,
+			content: population + " people",
+			offsetX: -40,
+			offsetY: -(30 + scale),
+			cssClass: "mapTooltip"
+		});
+
 
 		(function(i, marker, scale) {
 			var animateMarker = function(marker, scale, curScale) {
 				curScale = curScale || 0;
 				if (curScale < scale) {
-					marker.setOptions({
-						icon: {
-							path: google.maps.SymbolPath.CIRCLE,
-							fillOpacity: 0.5,
-							fillColor: color2,
-							strokeOpacity: 1.0,
-							strokeColor: color3,
-							strokeWeight: curScale < 7 ? 1 : 2,
-							scale: curScale
-						}
+					marker.setIcon({
+						path: google.maps.SymbolPath.CIRCLE,
+						fillOpacity: 0.4,
+						fillColor: color2,
+						strokeOpacity: 1.0,
+						strokeColor: color3,
+						strokeWeight: 2,
+						scale: curScale
 					});
 					setTimeout(function() {
 						animateMarker(marker, scale, curScale + ((scale - curScale) * 0.07) + 0.2);
-					}, curScale === 0 ? 500 : 10);
+					}, curScale === 0 ? 600 : 10);
 				}
 			};
 			setTimeout(function() {
 				animateMarker(marker, scale);
 			}, i * 50);
-		})(i, markers.slice(-1)[0], scale);
+		})(i, curMarker, scale);
+
+		(function() {
+			var currentMarker = curMarker;
+			var curIndex = i;
+			google.maps.event.addListener(curMarker, "click", function(e) {
+				$(".tooltip").hide();
+				for (var j = 0; j < markers.length; j++) {
+					var icon = markers[j].getIcon();
+					icon.fillOpacity = 0.4;
+					icon.strokeWeight = 2;
+					markers[j].setIcon(icon);
+				}
+				var curIcon = currentMarker.getIcon();
+				curIcon.fillOpacity = 0.9;
+				curIcon.strokeWeight = 3;
+				currentMarker.setIcon(curIcon);
+
+				var curObject = datapoints[curIndex];
+
+				$(".cityLabel").show();
+				$(".city").text(curObject.city);
+
+
+			});
+		})();
+
+
 	}
 
 

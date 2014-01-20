@@ -8,14 +8,14 @@ blockquote:before, blockquote:after, q:before, q:after { content: ''; content: n
 table { border-collapse: collapse; border-spacing: 0; }
 
 /* ACTUAL CSS */
-@import url("http://fonts.googleapis.com/css?family=Schoolbell|Ropa+Sans");
+@import url("http://fonts.googleapis.com/css?family=Schoolbell|Open+Sans+Condensed:300,700");
 
 @color-1: #00B2FF;
 @color-2: #FFA200;
 @color-3: #FF6200;
 
 @header-font: "Schoolbell", cursive;
-@sidebar-font: "Ropa Sans", sans-serif;
+@sidebar-font: "Open Sans Condensed", sans-serif;
 
 @header-color: @color-2;
 @header-height: 60px;
@@ -54,24 +54,64 @@ section {
 	position: absolute;
 	top: @header-height + 20px;
 	left: 20px;
-	width: 200px;
-	padding: 15px;
+	width: 300px;
+	padding: 15px 25px;
 	color: #fff;
 	font-family: @sidebar-font;
 	font-size: 130%;
-	text-align: center;
 	line-height: 1.5;
 	border: 5px solid @color-3;
 	background-color: @color-2;
 	overflow-y: scroll;
+	.tooltip {
+		text-align: center;
+	}
+	.cityLabel {
+		display: none;
+		.city {
+			font-weight: bold;
+			display: inline-block;
+			width: 70%;
+			float: right;
+			text-align: right;
+		}
+	}
+
 }
 
 #mapcanvas {
 	height: 100%;
+	.mapTooltip {
+		width: 70px;
+		background-color: #000;
+		opacity: 0.8;
+		color: #fff;
+		padding: 5px;
+		text-align: center;
+		border-radius: 5px;
+		position: relative;
+		font-size: 12px;
+		&:before {
+			content: "";
+			position: absolute;
+			background-color: transparent;
+			height: 0;
+			width: 0;
+			bottom: -5px;
+			left: 50%;
+			margin-left: -3px;
+			border-left: 3px solid transparent;
+			border-right: 3px solid transparent;
+			border-top: 5px solid #000;
+		}
+	}
 }
 
 @media screen and (max-width: 960px) {
-
+	section {
+		width: 200px;
+		padding: 15px 20px;
+	}
 }
 
 @media screen and (max-width: 540px) {
