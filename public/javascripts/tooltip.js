@@ -61,6 +61,9 @@ Tooltip.prototype.onAdd = function() {
     // We'll add this overlay to the floatPane pane.
     var panes = this.getPanes();
     panes.floatPane.appendChild(this.div_);
+
+    
+    this.opacity_ = $(this.div_).css("opacity");
 	
 };
 
@@ -82,6 +85,7 @@ Tooltip.prototype.draw = function() {
     div.style.left = (ne.x + this.offsetX_) + 'px';
     div.style.top = (ne.y + this.offsetY_) + 'px';
     
+    this.curTop_ = parseInt(div.style.top, 10);
 };
 
 // We here implement onRemove
@@ -91,9 +95,32 @@ Tooltip.prototype.onRemove = function() {
 
 // Note that the visibility property must be a string enclosed in quotes
 Tooltip.prototype.show = function() {
-    if (this.div_) $(this.div_).stop().fadeIn(200);
+    if (this.div_) {
+        $(this.div_)
+            .stop()
+            .css({
+                display: "inline-block",
+                opacity: 0,
+                top: this.curTop_ - this.offset_
+            })
+            .animate({
+                opacity: this.opacity_,
+                top: this.curTop_
+            }, 200);
+    }
 };
 
 Tooltip.prototype.hide = function() {
-    if (this.div_) $(this.div_).stop().fadeOut(200);
+    if (this.div_) {
+        $(this.div_)
+            .stop()
+            .animate({
+                opacity: 0,
+                top: this.curTop_ - this.offset_
+            }, 200, function() {
+                $(this).css({
+                    display: "none"
+                });
+            });
+    }
 };

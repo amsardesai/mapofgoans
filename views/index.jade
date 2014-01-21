@@ -6,6 +6,7 @@ html
 		link(rel='stylesheet', href='/stylesheets/style.css')
 		script(type='text/javascript', src='//cdnjs.cloudflare.com/ajax/libs/jquery/1.10.2/jquery.min.js')
 		script(type='text/javascript', src='http://maps.googleapis.com/maps/api/js?key=AIzaSyByK4l8jyTfjhjacWWkfQZZ32-PF417VWo&sensor=false')
+		script(type='text/javascript', src='/javascripts/modernizr.min.js')
 		script(type='text/javascript', src='/javascripts/tooltip.js')
 		script(type='text/javascript', src='/javascripts/maps.js')
 	body
@@ -13,8 +14,16 @@ html
 			span.hidden in North America
 		#mapcanvas
 		section
-			.tooltip Click on a point on the map to get more info!
-			.cityLabel City:
-				.city
+			.tooltip Click on a point on the map
+				span.hidden  to get more info
+				| !
+			.pointerInfo 
+				.peopleCount
+				| in 
+				span.city
+			.cityInfo
+		footer 
+			a.credits(href='http://ankitsardesai.ca/') Created by Ankit Sardesai
+			.sharepad
 
 

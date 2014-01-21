@@ -9,7 +9,6 @@ var datapoints = [
 		city: "Toronto, ON",
 		positionX: 40,
 		positionY: -100,
-		population: 3,
 		people: [
 			{
 				name: "Nita Sardesai"
@@ -20,7 +19,6 @@ var datapoints = [
 		city: "New York, NY",
 		positionX: 42,
 		positionY: -98,
-		population: 6,
 		people: [
 			{
 				name: "Arka Ganguli"
@@ -33,7 +31,6 @@ var datapoints = [
 		city: "Miami, FL",
 		positionX: 44,
 		positionY: -95,
-		population: 2,
 		people: [
 			{
 				name: "Ankit Sardesai"
@@ -43,6 +40,14 @@ var datapoints = [
 				name: "Meghana Pramod"
 			}, {
 				name: "Anmol Gupta"
+			}, {
+				name: "Adithya Venkataraman"
+			}, {
+				name: "Kartik Moza"
+			}, {
+				name: "Hamza Mohamadhossen"
+			}, {
+				name: "Aditi Banerjee"
 			}
 		]
 	},
@@ -50,12 +55,9 @@ var datapoints = [
 		city: "Charlottetown, PE",
 		positionX: 40,
 		positionY: -96,
-		population: 15,
 		people: [
 			{
 				name: "Aanchal Bajaj"
-			}, {
-				name: "Aditi Banerjee"
 			}
 		]
 	},
@@ -63,7 +65,6 @@ var datapoints = [
 		city: "Vancouver, BC",
 		positionX: 48,
 		positionY: -95,
-		population: 100,
 		people: [
 			{
 				name: "Sanga Yoganathan"
@@ -156,7 +157,7 @@ $(function() {
 	var mapOptions = {
 		center: new google.maps.LatLng(40, -107),
 		zoom: 4,
-		panControl: true,
+		panControl: !Modernizr.touch,
 		panControlOptions: {
 			position: google.maps.ControlPosition.RIGHT_TOP
 		},
@@ -179,8 +180,8 @@ $(function() {
 	map.setOptions({ styles: styleArray });
 	
 	for (var i = 0; i < datapoints.length; i++) {
-		var population = datapoints[i].population;
-		var scale = Math.log(population) / Math.log(1.15);
+		var population = datapoints[i].people.length;
+		var scale = Math.log(population + 1) / Math.log(1.15);
 
 		var curMarker = new google.maps.Marker({
 			position: new google.maps.LatLng(datapoints[i].positionX,datapoints[i].positionY),
@@ -197,6 +198,7 @@ $(function() {
 
 		markers.push(curMarker);
 
+		// Tooltip for markers
 		var tooltip = new Tooltip({
 			marker: curMarker,
 			content: population + " people",
@@ -204,8 +206,8 @@ $(function() {
 			offsetY: -(30 + scale),
 			cssClass: "mapTooltip"
 		});
-
-
+		
+		// Marker animating in the beginning
 		(function(i, marker, scale) {
 			var animateMarker = function(marker, scale, curScale) {
 				curScale = curScale || 0;
@@ -229,11 +231,11 @@ $(function() {
 			}, i * 50);
 		})(i, curMarker, scale);
 
+		// Make markers clickable
 		(function() {
 			var currentMarker = curMarker;
 			var curIndex = i;
 			google.maps.event.addListener(curMarker, "click", function(e) {
-				$(".tooltip").hide();
 				for (var j = 0; j < markers.length; j++) {
 					var icon = markers[j].getIcon();
 					icon.fillOpacity = 0.4;
@@ -247,23 +249,43 @@ $(function() {
 
 				var curObject = datapoints[curIndex];
 
-				$(".cityLabel").show();
+				$(".tooltip").hide();
+				$(".pointerInfo").show();
 				$(".city").text(curObject.city);
-
+				$(".peopleCount").text(curObject.people.length + " Goan" + (curObject.people.length == 1 ? "" : "s"));
+				$(".cityInfo").empty();
+				
+				for (var k = 0; k < curObject.people.length; k++) {
+					var newItem = $("<div class='person'>");
+					newItem.append($("<div class='name'>").text(curObject.people[k].name));
+					$(".cityInfo").append(newItem);
+				}
 
 			});
 		})();
-
-
 	}
+
+	google.maps.event.addListener(map, "click", function() {
+		$(".cityInfo").empty();
+		$(".pointerInfo").hide();
+		$(".tooltip").show();
+		for (var j = 0; j < markers.length; j++) {
+			var icon = markers[j].getIcon();
+			icon.fillOpacity = 0.4;
+			icon.strokeWeight = 2;
+			markers[j].setIcon(icon);
+		}
+	});
 
 
 	// Limit the zoom level
 	var minZoomLevel = 3;
 	var maxZoomLevel = 8;
 	google.maps.event.addListener(map, 'zoom_changed', function() {
-		if (map.getZoom() < minZoomLevel) map.setZoom(minZoomLevel);
-		if (map.getZoom() > maxZoomLevel) map.setZoom(maxZoomLevel);
+		if (map.getZoom() < minZoomLevel)
+			map.setZoom(minZoomLevel);
+		else if (map.getZoom() > maxZoomLevel)
+			map.setZoom(maxZoomLevel);
 	});
 
 });

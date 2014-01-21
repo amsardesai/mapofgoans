@@ -8,14 +8,14 @@ blockquote:before, blockquote:after, q:before, q:after { content: ''; content: n
 table { border-collapse: collapse; border-spacing: 0; }
 
 /* ACTUAL CSS */
-@import url("http://fonts.googleapis.com/css?family=Schoolbell|Open+Sans+Condensed:300,700");
+@import url("http://fonts.googleapis.com/css?family=Schoolbell|Gudea:400,700,400italic");
 
 @color-1: #00B2FF;
 @color-2: #FFA200;
 @color-3: #FF6200;
 
 @header-font: "Schoolbell", cursive;
-@sidebar-font: "Open Sans Condensed", sans-serif;
+@sidebar-font: "Gudea", sans-serif;
 
 @header-color: @color-2;
 @header-height: 60px;
@@ -31,6 +31,7 @@ body {
 	font-size: 15px;
 	box-sizing: border-box;
 	padding-top: @header-height;
+	background-color: @color-2;
 }
 
 header {
@@ -39,58 +40,30 @@ header {
 	left: 0;
 	right: 0;
 	height: @header-height - 30px;
+	text-align: center;
 	background-color: @header-color;
 	border-bottom: 5px solid @color-3;
 	border-top: 5px solid @color-3;
-	text-align: center;
 	font-family: @header-font;
 	font-size: 200%;
-	padding: 11px 0 9px 0;
-	color: #ffffff;
-
-}
-
-section {
-	position: absolute;
-	top: @header-height + 20px;
-	left: 20px;
-	width: 300px;
-	padding: 15px 25px;
+	padding: 11px 10px 9px 10px;
 	color: #fff;
-	font-family: @sidebar-font;
-	font-size: 130%;
-	line-height: 1.5;
-	border: 5px solid @color-3;
-	background-color: @color-2;
-	overflow-y: scroll;
-	.tooltip {
-		text-align: center;
-	}
-	.cityLabel {
-		display: none;
-		.city {
-			font-weight: bold;
-			display: inline-block;
-			width: 70%;
-			float: right;
-			text-align: right;
-		}
-	}
-
 }
+
 
 #mapcanvas {
 	height: 100%;
+	min-height: 300px;
 	.mapTooltip {
 		width: 70px;
 		background-color: #000;
-		opacity: 0.8;
+		opacity: 0.75;
 		color: #fff;
 		padding: 5px;
 		text-align: center;
 		border-radius: 5px;
 		position: relative;
-		font-size: 12px;
+		font-size: 11px;
 		&:before {
 			content: "";
 			position: absolute;
@@ -107,25 +80,133 @@ section {
 	}
 }
 
+
+section {
+	position: absolute;
+	top: @header-height + 20px;
+	left: 20px;
+	width: 300px;
+	color: #fff;
+	font-family: @sidebar-font;
+	line-height: 1.5;
+	border: 5px solid @color-3;
+	background-color: @color-2;
+	box-sizing: border-box;
+	.tooltip {
+		font-size: 110%;
+		text-align: center;
+		padding: 7px 15px;
+	}
+	.pointerInfo {
+		font-size: 85%;
+		display: none;
+		padding: 7px;
+		text-align: center;
+		border-bottom: 2px solid lighten(@color-3, 10%);
+		.peopleCount {
+			font-size: 160%;
+			font-weight: bold;
+		}
+
+	}
+	.cityInfo {
+		max-height: 300px;
+		overflow-y: scroll;
+		.person {
+			border-top: 2px solid lighten(@color-3, 10%);
+			padding: 7px 15px;
+			&:first-child {
+				border-top: 0;
+			}
+			&:nth-child(odd) {
+				background-color: lighten(@color-2, 10%);
+			}
+			&:nth-child(even) {
+				background-color: lighten(@color-2, 20%);
+			}
+		}
+	}
+
+}
+
+@footer-share-height: 60px;
+@footer-width: 190px;
+
+footer {
+	position: absolute;
+	bottom: 20px;
+	right: 10px;
+	display: inline-block;
+	width: @footer-width;
+	height: @footer-share-height + 35px;
+	.credits {
+		display: block;
+		height: 15px;
+		padding: 6px 10px;
+		margin-bottom: 10px;
+		text-align: center;
+		vertical-align: middle;
+		text-decoration: none;
+		color: #fff;
+		font-family: @sidebar-font;
+		font-size: 14px;
+		border-radius: 5px;
+		background-color: #000;
+		opacity: 0.75;
+	}
+	.sharepad {
+		border-radius: 5px;
+		background-color: #000;
+		opacity: 0.55;
+		box-sizing: border-box;
+		padding: 6px 10px;
+		height: @footer-share-height;
+	}
+}
+
 @media screen and (max-width: 960px) {
 	section {
-		width: 200px;
-		padding: 15px 20px;
+		width: 230px;
+		//padding: 15px 20px;
 	}
 }
 
 @media screen and (max-width: 540px) {
-	header {
-		.container {
-			.logo {
-				.hidden {
-					display: none;
-				}
-			}
+	#mapcanvas {
+		height: 70%;
+	}
+	section {
+		position: static;
+		border-left: 0;
+		border-right: 0;
+		display: block;
+		width: 100%;
+		.cityInfo {
+			max-height: none;
+		}
+	}
+	footer {
+		height: 25px;
+		position: static;
+		display: block;
+		width: 100%;
+		.credits {
+			opacity: 1;
+			border-radius: 0;
+			margin: 0;
+			background-color: @color-2;
+			padding: 10px 0;
+		}
+		.sharepad {
+			display: none;
 		}
 	}
 }
 
-
+@media screen and (max-width: 440px) {
+	.hidden {
+		display: none;
+	}	
+}
 
 
