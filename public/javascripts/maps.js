@@ -201,7 +201,7 @@ $(function() {
 		// Tooltip for markers
 		var tooltip = new Tooltip({
 			marker: curMarker,
-			content: population + " people",
+			content: population + (population == 1 ? " person" : " people"),
 			offsetX: -40,
 			offsetY: -(30 + scale),
 			cssClass: "mapTooltip"

@@ -10,6 +10,9 @@ html
 		script(type='text/javascript', src='/javascripts/tooltip.js')
 		script(type='text/javascript', src='/javascripts/maps.js')
 	body
+		#fb-root
+		script (function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(d.getElementById(id))return;js=d.createElement(s);js.id=id;js.src="//connect.facebook.net/en_US/all.js#xfbml=1";fjs.parentNode.insertBefore(js,fjs);}(document,'script','facebook-jssdk'));
+		script !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");
 		header Map of Goans 
 			span.hidden in North America
 		#mapcanvas
@@ -25,5 +28,6 @@ html
 		footer 
 			a.credits(href='http://ankitsardesai.ca/') Created by Ankit Sardesai
 			.sharepad
-
+				.fb-like(data-href="https://developers.facebook.com/docs/plugins/",data-width="80px",data-layout="button_count",data-action="like",data-show-faces="true",data-share="false")
+				a.twitter-share-button(href="https://twitter.com/share",data-url="https://dev.twitter.com",data-lang="en")
 

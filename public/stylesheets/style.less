@@ -129,7 +129,7 @@ section {
 
 }
 
-@footer-share-height: 60px;
+@footer-share-height: 65px;
 @footer-width: 190px;
 
 footer {
@@ -152,15 +152,20 @@ footer {
 		font-size: 14px;
 		border-radius: 5px;
 		background-color: #000;
-		opacity: 0.75;
+		opacity: 0.8;
 	}
 	.sharepad {
 		border-radius: 5px;
 		background-color: #000;
-		opacity: 0.55;
+		opacity: 0.8;
 		box-sizing: border-box;
-		padding: 6px 10px;
+		padding: 10px;
 		height: @footer-share-height;
+		text-align: center;
+		div {
+			display: inline-block;
+			margin-right: 10px;
+		}
 	}
 }
 
@@ -198,7 +203,11 @@ footer {
 			padding: 10px 0;
 		}
 		.sharepad {
-			display: none;
+			opacity: 1;
+			border-radius: 0;
+			background-color: @color-2;
+			padding: 0 0 10px 0;
+			height: 30px;
 		}
 	}
 }
