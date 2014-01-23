@@ -32,7 +32,10 @@ body {
 	box-sizing: border-box;
 	padding-top: @header-height;
 	background-color: @color-2;
+	font-family: @sidebar-font;
 }
+
+// Index Page
 
 header {
 	position: absolute;
@@ -87,7 +90,6 @@ section {
 	left: 20px;
 	width: 300px;
 	color: #fff;
-	font-family: @sidebar-font;
 	line-height: 1.5;
 	border: 5px solid @color-3;
 	background-color: @color-2;
@@ -148,7 +150,6 @@ footer {
 		vertical-align: middle;
 		text-decoration: none;
 		color: #fff;
-		font-family: @sidebar-font;
 		font-size: 14px;
 		border-radius: 5px;
 		background-color: #000;
@@ -218,4 +219,43 @@ footer {
 	}	
 }
 
+// Upload Page
 
+.uploadForm {
+	background-color: lighten(@color-1, 10%);
+	border: 10px solid @color-3;
+	max-width: 500px;
+	margin: auto;
+	padding: 30px;
+	font-size: 200%;
+	font-weight: bold;
+	font-family: @header-font;
+	text-align: center;
+	color: #fff;
+	.fields {
+		margin-top: 20px;
+		background-color: lighten(@color-1, 20%);
+		padding: 30px;
+		h2 {
+			font-size: 50%;
+			font-family: @sidebar-font;
+			font-weight: normal;
+			padding-bottom: 20px;
+			strong {
+				font-weight: bold;
+			}
+		}
+		input {
+			color: #000;
+			line-height: 17px;
+			height: 17px;
+			margin: 0;
+			text-align: center;
+			&[type="file"], &[type="password"] {
+				display: block;
+				width: 60%;
+				margin: 0 20%;
+			}
+		}
+	}
+}

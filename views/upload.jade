@@ -2,5 +2,22 @@ doctype html
 html
 	head
 		title Upload New Data
+		link(rel='stylesheet', href='/stylesheets/style.css')
 	body
-		input(type="file")
+		form(class="uploadForm", action="", method="post", enctype="multipart/form-data")
+			h1 Upload New Data
+			.fields
+				h2 
+					strong Step 1: 
+					| Enter Password.
+				input(type="password")
+			.fields
+				h2 
+					strong Step 2: 
+					| Upload file. (.xls or .xlsx)
+				input(type="file")
+			.fields
+				h2 
+					strong Step 3: 
+					| Submit!
+				input(type="submit", class="submit", value="Upload File")
