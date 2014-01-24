@@ -2,12 +2,23 @@
  * Module dependencies.
  */
 
+// Modules
 var express = require('express');
 var routes = require('./routes');
 var http = require('http');
 var path = require('path');
+var multiparty = require('multiparty');
+var excelParser = require('excel-parser');
+
+// Database Connections
+var databaseUrl = "test";
+var collections = ["password", "people"];
+var db = require("mongojs").connect(databaseUrl, collections);
+
+// Initialize Express
 var app = express();
 
+// Get port and environment
 var port = process.env.PORT || 3000;
 var env = app.get("env");
 
@@ -33,7 +44,7 @@ app.configure("development", function() {
 	app.use(express.errorHandler());
 });
 
-routes(app);
+routes(app, db, multiparty);
 
 http.createServer(app).listen(port, function (){
   console.log('Server running on port ' + port + " in " + env + " mode");

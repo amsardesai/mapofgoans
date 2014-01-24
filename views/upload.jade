@@ -4,18 +4,23 @@ html
 		title Upload New Data
 		link(rel='stylesheet', href='/stylesheets/style.css')
 	body
+		if showMsg
+			if success
+				.uploadError.success The file has been uploaded, parsed, and put into the database successfully.
+			else
+				.uploadError.failure= error
 		form(class="uploadForm", action="", method="post", enctype="multipart/form-data")
 			h1 Upload New Data
 			.fields
 				h2 
 					strong Step 1: 
 					| Enter Password.
-				input(type="password")
+				input(type="password",name="password")
 			.fields
 				h2 
 					strong Step 2: 
 					| Upload file. (.xls or .xlsx)
-				input(type="file")
+				input(type="file",name="uploadFile")
 			.fields
 				h2 
 					strong Step 3: 

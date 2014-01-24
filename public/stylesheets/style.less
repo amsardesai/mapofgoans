@@ -221,9 +221,28 @@ footer {
 
 // Upload Page
 
+.uploadError {
+	border: 5px solid @color-3;
+	max-width: 500px;
+	margin: 0 auto 20px auto;
+	padding: 30px;
+	font-size: 150%;
+	font-weight: bold;
+	font-family: @sidebar-font;
+	text-align: center;
+	line-height: 30px;
+	color: #fff;
+	&.failure {
+		background-color: lighten(red, 30%);
+	}
+	&.success {
+		background-color: lighten(green, 20%);
+	}
+}
+
 .uploadForm {
 	background-color: lighten(@color-1, 10%);
-	border: 10px solid @color-3;
+	border: 5px solid @color-3;
 	max-width: 500px;
 	margin: auto;
 	padding: 30px;
