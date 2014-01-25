@@ -133,14 +133,19 @@ $(function() {
 			map.setZoom(maxZoomLevel);
 	});
 	
+	console.log("/data");
+	
 	$.getJSON("/data", function(datapoints, textStatus, jqXHR) {
 
+			console.log(datapoints);
+			console.log(textStatus);
 		for (var i = 0; i < datapoints.length; i++) {
 			var population = datapoints[i].people.length;
-			var scale = Math.log(population + 1) / Math.log(1.15);
+			var scale = Math.log(population + 1) / Math.log(1.12);
+
 
 			var curMarker = new google.maps.Marker({
-				position: new google.maps.LatLng(datapoints[i].positionX,datapoints[i].positionY),
+				position: new google.maps.LatLng(datapoints[i].location.lat,datapoints[i].location.lng),
 				map: map,
 				icon: {
 					path: google.maps.SymbolPath.CIRCLE,
@@ -148,8 +153,7 @@ $(function() {
 					strokeOpacity: 0,
 					strokeWeight: 0,
 					scale: scale
-				},
-				title: "hi"
+				}
 			});
 
 			markers.push(curMarker);
@@ -184,7 +188,7 @@ $(function() {
 				};
 				setTimeout(function() {
 					animateMarker(marker, scale);
-				}, i * 50);
+				}, i * 30);
 			})(i, curMarker, scale);
 
 			// Make markers clickable
@@ -203,17 +207,17 @@ $(function() {
 					curIcon.strokeWeight = 3;
 					currentMarker.setIcon(curIcon);
 
-					var curObject = datapoints[curIndex];
+					var curCity = datapoints[curIndex];
 
 					$(".tooltip").hide();
 					$(".pointerInfo").show();
-					$(".city").text(curObject.city);
-					$(".peopleCount").text(curObject.people.length + " Goan" + (curObject.people.length == 1 ? "" : "s"));
+					$(".city").text(curCity.name);
+					$(".peopleCount").text(curCity.people.length + " Goan" + (curCity.people.length == 1 ? "" : "s"));
 					$(".cityInfo").empty();
 					
-					for (var k = 0; k < curObject.people.length; k++) {
+					for (var k = 0; k < curCity.people.length; k++) {
 						var newItem = $("<div class='person'>");
-						newItem.append($("<div class='name'>").text(curObject.people[k].name));
+						newItem.append($("<div class='name'>").text(curCity.people[k].name));
 						$(".cityInfo").append(newItem);
 					}
 

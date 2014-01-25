@@ -31,7 +31,11 @@ module.exports = function(app, db, multiparty, xlsx, fs, geocoder) {
 
 	app.get("/data", function(req, res) {
 		res.header("Content-type", "text/json");
-		res.sendfile(__dirname + "/public/testfile.json");
+		db.cities.find(function(err, data) {
+			res.json(data);
+		});
+
+		// res.sendfile(__dirname + "/public/testfile.json");
 	});
 
 	// POSTs
