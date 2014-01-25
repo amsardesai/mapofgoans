@@ -135,8 +135,10 @@ module.exports = function(app, db, multiparty, xlsx, fs, geocoder) {
 												} else {
 													var results = geocodeData.results[0];
 
+													var parsedCity = results.formatted_address.match(/[A-Za-z ]+, [A-Z]{2}/)[0];
+
 													db.cities.update({
-														name: results.formatted_address,
+														name: parsedCity,
 													}, {
 														$setOnInsert: {
 															location: results.geometry.location

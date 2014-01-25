@@ -4,15 +4,15 @@ var color1 = "#00B2FF";
 var color2 = "#FFA200";
 var color3 = "#FF6200";
 
-var datapoints = [];
 
 var markers = [];
 
 
 $(function() {
-
-
-
+	var viewport = {
+		"width": $(window).width(),
+		"height": $(window).height()
+	};
 
 	var styleArray = [
 		{
@@ -133,45 +133,70 @@ $(function() {
 			map.setZoom(maxZoomLevel);
 	});
 	
-	console.log("/data");
-	
 	$.getJSON("/data", function(datapoints, textStatus, jqXHR) {
 
-			console.log(datapoints);
-			console.log(textStatus);
 		for (var i = 0; i < datapoints.length; i++) {
 			var population = datapoints[i].people.length;
-			var scale = Math.log(population + 1) / Math.log(1.12);
+			var scale = Math.round(10 * Math.pow(population / 4, 0.5));
 
+			var icon = Modernizr.touch ? {
+				path: google.maps.SymbolPath.CIRCLE,
+				fillOpacity: 0.4,
+				fillColor: color2,
+				strokeOpacity: 1.0,
+				strokeColor: color3,
+				strokeWeight: 2,
+				scale: scale
+			} : {
+				path: google.maps.SymbolPath.CIRCLE,
+				fillOpacity: 0,
+				strokeOpacity: 0,
+				strokeWeight: 0,
+				scale: scale
+			};
 
 			var curMarker = new google.maps.Marker({
 				position: new google.maps.LatLng(datapoints[i].location.lat,datapoints[i].location.lng),
 				map: map,
-				icon: {
-					path: google.maps.SymbolPath.CIRCLE,
-					fillOpacity: 0,
-					strokeOpacity: 0,
-					strokeWeight: 0,
-					scale: scale
-				}
+				icon: icon
 			});
 
 			markers.push(curMarker);
 
-			// Tooltip for markers
-			var tooltip = new Tooltip({
-				marker: curMarker,
-				content: population + (population == 1 ? " person" : " people"),
-				offsetX: -40,
-				offsetY: -(30 + scale),
-				cssClass: "mapTooltip"
-			});
-			
-			// Marker animating in the beginning
-			(function(i, marker, scale) {
-				var animateMarker = function(marker, scale, curScale) {
-					curScale = curScale || 0;
-					if (curScale < scale) {
+			if (!Modernizr.touch) {
+				// Tooltip for markers
+				var tooltip = new Tooltip({
+					marker: curMarker,
+					content: population + (population == 1 ? " person" : " people") + " in <br />" + datapoints[i].name,
+					offsetX: -65,
+					offsetY: -(42 + scale),
+					cssClass: "mapTooltip"
+				});
+
+				// Highly optimized numbers (19, 37 have high LCMs) by leaving no idle time slots or overlapping threads
+				var animationDelay = 19;
+				var datapointDelay = 37;
+
+				// Marker animating in the beginning
+				(function() {
+					var markerNumber = i;
+					var marker = curMarker;
+					var newScale = scale;
+
+					var animateMarker = function(marker, scale, curScale) {
+						curScale = (Math.ceil(curScale * 2) / 2) || 0;
+						if (curScale < scale) {
+							console.log(curScale + " " + scale);
+							var icon = marker.getIcon();
+							icon.scale = curScale;
+							marker.setIcon(icon);
+							setTimeout(function() {
+								animateMarker(marker, scale, curScale + ((scale - curScale) * 0.2));
+							}, curScale === 0 ? 600 : animationDelay);
+						}
+					};
+					
+					setTimeout(function() {
 						marker.setIcon({
 							path: google.maps.SymbolPath.CIRCLE,
 							fillOpacity: 0.4,
@@ -179,17 +204,14 @@ $(function() {
 							strokeOpacity: 1.0,
 							strokeColor: color3,
 							strokeWeight: 2,
-							scale: curScale
+							scale: 0
 						});
-						setTimeout(function() {
-							animateMarker(marker, scale, curScale + ((scale - curScale) * 0.07) + 0.2);
-						}, curScale === 0 ? 600 : 10);
-					}
-				};
-				setTimeout(function() {
-					animateMarker(marker, scale);
-				}, i * 30);
-			})(i, curMarker, scale);
+						animateMarker(marker, newScale);
+					}, markerNumber * datapointDelay);
+				
+				})();
+			}
+
 
 			// Make markers clickable
 			(function() {

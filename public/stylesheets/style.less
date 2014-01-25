@@ -30,6 +30,7 @@ body {
 	height: 100%;
 	font-size: 15px;
 	box-sizing: border-box;
+	-moz-box-sizing: border-box;
 	padding-top: @header-height;
 	background-color: @color-2;
 	font-family: @sidebar-font;
@@ -58,7 +59,7 @@ header {
 	height: 100%;
 	min-height: 300px;
 	.mapTooltip {
-		width: 70px;
+		width: 120px;
 		background-color: #000;
 		opacity: 0.75;
 		color: #fff;
@@ -67,6 +68,7 @@ header {
 		border-radius: 5px;
 		position: relative;
 		font-size: 11px;
+		line-height: 1.2;
 		&:before {
 			content: "";
 			position: absolute;
@@ -94,6 +96,7 @@ section {
 	border: 5px solid @color-3;
 	background-color: @color-2;
 	box-sizing: border-box;
+	-moz-box-sizing: border-box;
 	.tooltip {
 		font-size: 110%;
 		text-align: center;
@@ -112,8 +115,8 @@ section {
 
 	}
 	.cityInfo {
+		overflow-y: auto;
 		max-height: 300px;
-		overflow-y: scroll;
 		.person {
 			border-top: 2px solid lighten(@color-3, 10%);
 			padding: 7px 15px;
@@ -160,6 +163,7 @@ footer {
 		background-color: #000;
 		opacity: 0.8;
 		box-sizing: border-box;
+		-moz-box-sizing: border-box;
 		padding: 10px;
 		height: @footer-share-height;
 		text-align: center;
@@ -177,7 +181,7 @@ footer {
 	}
 }
 
-@media screen and (max-width: 540px) {
+@media screen and (max-width: 600px) {
 	#mapcanvas {
 		height: 70%;
 	}
