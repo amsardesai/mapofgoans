@@ -7,6 +7,7 @@ var express = require('express');
 var routes = require('./routes');
 var http = require('http');
 var path = require('path');
+var fs = require("fs");
 var multiparty = require('multiparty');
 var xlsx = require('node-xlsx');
 
@@ -44,7 +45,7 @@ app.configure("development", function() {
 	app.use(express.errorHandler());
 });
 
-routes(app, db, multiparty, xlsx);
+routes(app, db, multiparty, xlsx, fs);
 
 http.createServer(app).listen(port, function (){
   console.log('Server running on port ' + port + " in " + env + " mode");
