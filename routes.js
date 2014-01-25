@@ -1,6 +1,6 @@
 // Routes file
 
-module.exports = function(app, db, multiparty) {
+module.exports = function(app, db, multiparty, xlsx) {
 
 	// GETs
 
@@ -56,6 +56,13 @@ module.exports = function(app, db, multiparty) {
 				if (password[0].def !== fields.password[0])
 					renderPage("You have entered the wrong password!");
 				else {
+
+					var fileLocation = files.uploadFile[0].path;
+					console.log("SUCCESS! path: " + fileLocation);
+
+					var obj = xlsx.parse(fileLocation);
+					console.log(obj);
+
 					renderPage();
 				}
 			});
