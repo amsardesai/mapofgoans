@@ -1,5 +1,6 @@
 // Routes file
 
+/*jshint -W083 */
 
 var livesInColumn = "LIVES_IN";
 var fullNameColumn = "FULLNAME";
@@ -10,7 +11,7 @@ var workingAtColumn = "WORKING_AT";
 var workSheetNumber = 0;
 
 
-module.exports = function(app, db, multiparty, xlsx, fs) {
+module.exports = function(app, db, multiparty, xlsx, fs, geocoder) {
 
 	// GETs
 
@@ -77,14 +78,6 @@ module.exports = function(app, db, multiparty, xlsx, fs) {
 						var obj = xlsx.parse(fileLocation);
 						var data = obj.worksheets[workSheetNumber].data;
 
-
-						console.log("livesInColumn: " + livesInColumn);
-						console.log("fullNameColumn: " + fullNameColumn);
-						console.log("homeTownColumn: " + homeTownColumn);
-						console.log("highSchoolColumn: " + highSchoolColumn);
-						console.log("profCollegeColumn: " + profCollegeColumn);
-						console.log("workingAtColumn: " + workingAtColumn);
-
 						var header = data[0];
 						var livesIn, fullName, homeTown, highSchool, profCollege, workingAt;
 						for (var i = 0; i < header.length; i++) {
@@ -97,40 +90,86 @@ module.exports = function(app, db, multiparty, xlsx, fs) {
 							else if (val == workingAtColumn) workingAt = i;
 						}
 
-						console.log("livesIn: " + livesIn);
-						console.log("fullName: " + fullName);
-						console.log("homeTown: " + homeTown);
-						console.log("highSchool: " + highSchool);
-						console.log("profCollege: " + profCollege);
-						console.log("workingAt: " + workingAt);
-
-						if (!livesIn || !fullName || !homeTown || !highSchool || !profCollege || !workingAt)
+						if (typeof livesIn === 'undefined' ||
+							typeof fullName === 'undefined' ||
+							typeof homeTown === 'undefined' ||
+							typeof highSchool === 'undefined' ||
+							typeof profCollege === 'undefined' ||
+							typeof workingAt === 'undefined')
 							throw("");
 
-						var parsedData = [];
+						db.cities.remove({}, function() {
 
-						for (var j = 1; j < data.length; j++) {
-							var currentField = data[j];
-							var livesInParsed = currentField[livesIn];
-							var cityCheck = /^[A-Za-z ]+, [A-Z]{2}$/;
+							for (var j = 1; j < data.length; j++) {
+								var currentField = data[j];
+								var livesInParsed = currentField[livesIn] ? currentField[livesIn].value : null;
+								var cityCheck = /^[A-Za-z ]+, *[A-Z]{2}$/;
 
-							if (cityCheck.test(livesInParsed)) {
-								var fullNameParsed = currentField[fullName];
-								var homeTownParsed = currentField[homeTown];
-								var highSchoolParsed = currentField[highSchool];
-								var profCollegeParsed = currentField[profCollege];
-								var workingAtParsed = currentField[workingAt];
-								
-								
-								
-								
-								
+								if (cityCheck.test(livesInParsed)) {
+									// City is in the format city, state (Toronto, ON)
+
+									var fullNameParsed = currentField[fullName] ? currentField[fullName].value : null;
+									var homeTownParsed = currentField[homeTown] ? currentField[homeTown].value : null;
+									var highSchoolParsed = currentField[highSchool] ? currentField[highSchool].value : null;
+									var profCollegeParsed = currentField[profCollege] ? currentField[profCollege].value : null;
+									var workingAtParsed = currentField[workingAt] ? currentField[workingAt].value : null;
+
+									(function() {
+										var city = livesInParsed;
+										var fullName = fullNameParsed;
+										var homeTown = homeTownParsed;
+										var highSchool = highSchoolParsed;
+										var profCollege = profCollegeParsed;
+										var workingAt = workingAtParsed;
+										var findGeocode;
+										(findGeocode = function(city, fullName, homeTown, highSchool, profCollege, workingAt) {
+											geocoder.geocode(city, function(err, geocodeData) {
+												if (geocodeData.status === "OVER_QUERY_LIMIT") {
+													setTimeout(function() {
+														findGeocode(city, fullName, homeTown, highSchool, profCollege, workingAt);
+													}, 500);
+												} else {
+													var results = geocodeData.results[0];
+
+													db.cities.update({
+														name: results.formatted_address,
+													}, {
+														$setOnInsert: {
+															location: results.geometry.location
+														},
+														$push: {
+															people: {
+																$each: [
+																	{
+																		name: fullName,
+																		homeTown: homeTown,
+																		highSchool: highSchool,
+																		profCollege: profCollege,
+																		workingAt: workingAt
+																	}
+																]
+															}
+														}
+													}, {
+														upsert: true
+													});
+												}
+
+											});
+										}).call(null, city, fullName, homeTown, highSchool, profCollege, workingAt);
+
+									})();
+
+
+								}
 							}
-						}
+
+							renderPage();
+
+						});
 
 
 
-						renderPage();
 					} catch (e) {
 						deleteFile(fileLocation);
 						renderPage("An error occurred while parsing the file. Are you sure it is a properly formatted XLSX file?");

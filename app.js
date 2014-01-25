@@ -7,13 +7,14 @@ var express = require('express');
 var routes = require('./routes');
 var http = require('http');
 var path = require('path');
-var fs = require("fs");
+var fs = require('fs');
 var multiparty = require('multiparty');
+var geocoder = require('geocoder');
 var xlsx = require('node-xlsx');
 
 // Database Connections
 var databaseUrl = "test";
-var collections = ["password", "people"];
+var collections = ["password", "cities"];
 var db = require("mongojs").connect(databaseUrl, collections);
 
 // Initialize Express
@@ -45,7 +46,7 @@ app.configure("development", function() {
 	app.use(express.errorHandler());
 });
 
-routes(app, db, multiparty, xlsx, fs);
+routes(app, db, multiparty, xlsx, fs, geocoder);
 
 http.createServer(app).listen(port, function (){
   console.log('Server running on port ' + port + " in " + env + " mode");
