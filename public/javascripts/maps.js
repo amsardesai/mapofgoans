@@ -1,9 +1,8 @@
 /*jshint -W083 */
 
-var color1 = "#00B2FF";
-var color2 = "#FFA200";
-var color3 = "#FF6200";
-
+var color1 = "#70D3F8";
+var color2 = "#FB8C29";
+var color3 = "#C35C00";
 
 var markers = [];
 
