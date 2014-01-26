@@ -73,7 +73,10 @@ module.exports = function(app, db, multiparty, xlsx, fs, geocoder) {
 			} else db.password.find().limit(1, function(err, password) {
 				// Check if password has been entered correctly
 
-				if (password[0].def !== fields.password[0]) {
+				if (!password) {
+					deleteFile(fileLocation);
+					renderPage("Database Error");
+				} else if (password[0].def !== fields.password[0]) {
 					deleteFile(fileLocation);
 					renderPage("You have entered the wrong password!");
 				} else {
