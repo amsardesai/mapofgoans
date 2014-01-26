@@ -185,7 +185,6 @@ $(function() {
 					var animateMarker = function(marker, scale, curScale) {
 						curScale = (Math.ceil(curScale * 2) / 2) || 0;
 						if (curScale < scale) {
-							console.log(curScale + " " + scale);
 							var icon = marker.getIcon();
 							icon.scale = curScale;
 							marker.setIcon(icon);
