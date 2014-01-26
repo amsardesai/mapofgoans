@@ -1,6 +1,6 @@
 # Map of Goans in North America
 
-Source code for [my website](http://mapofgoans.ankitsardesai.ca).
+Source code for http://mapofgoans.ankitsardesai.ca.
 
 Built using:
 -   NodeJS
