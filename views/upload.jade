@@ -6,7 +6,7 @@ html
 	body
 		if showMsg
 			if success
-				.uploadError.success The file has been uploaded, parsed, and put into the database successfully.
+				.uploadError.success The file has been uploaded, parsed, and will appear in the database over the next little while.
 			else
 				.uploadError.failure= error
 		form(class="uploadForm", action="", method="post", enctype="multipart/form-data")

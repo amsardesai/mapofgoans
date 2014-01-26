@@ -10,7 +10,6 @@ var profCollegeColumn = "PROF_COLLEGE";
 var workingAtColumn = "WORKING_AT";
 var workSheetNumber = 0;
 
-
 module.exports = function(app, db, multiparty, xlsx, fs, geocoder) {
 
 	// GETs
@@ -26,7 +25,7 @@ module.exports = function(app, db, multiparty, xlsx, fs, geocoder) {
 	});
 
 	app.get("/upload", function(req, res) {
-		res.render("upload", { displayForm: true });
+		res.render("upload");
 	});
 
 	app.get("/data", function(req, res) {
@@ -34,8 +33,6 @@ module.exports = function(app, db, multiparty, xlsx, fs, geocoder) {
 		db.cities.find(function(err, data) {
 			res.json(data);
 		});
-
-		// res.sendfile(__dirname + "/public/testfile.json");
 	});
 
 	// POSTs
@@ -135,10 +132,9 @@ module.exports = function(app, db, multiparty, xlsx, fs, geocoder) {
 												if (geocodeData.status === "OVER_QUERY_LIMIT") {
 													setTimeout(function() {
 														findGeocode(city, fullName, homeTown, highSchool, profCollege, workingAt);
-													}, 500);
+													}, 1000);
 												} else {
 													var results = geocodeData.results[0];
-
 													var parsedCity = results.formatted_address.match(/[A-Za-z ]+, [A-Z]{2}/)[0];
 
 													db.cities.update({
@@ -164,22 +160,13 @@ module.exports = function(app, db, multiparty, xlsx, fs, geocoder) {
 														upsert: true
 													});
 												}
-
 											});
 										}).call(null, city, fullName, homeTown, highSchool, profCollege, workingAt);
-
 									})();
-
-
 								}
 							}
-
 							renderPage();
-
 						});
-
-
-
 					} catch (e) {
 						deleteFile(fileLocation);
 						renderPage("An error occurred while parsing the file. Are you sure it is a properly formatted XLSX file?");
@@ -188,6 +175,4 @@ module.exports = function(app, db, multiparty, xlsx, fs, geocoder) {
 			});
 		});
 	});
-
-
 };
