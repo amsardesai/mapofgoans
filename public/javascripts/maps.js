@@ -237,39 +237,44 @@ $(function() {
 					$(".cityInfo").empty();
 					
 					for (var k = 0; k < curCity.people.length; k++) {
-						var person = curCity.people[k];
+						(function() {
+							var person = curCity.people[k];
 
-						var newItem = $("<div class='person'>");
-						newItem.append($("<div class='name'>").text(person.name));
+							var newItem = $("<a class='person'>");
+							newItem.append($("<div class='name'>").text(person.name));
 
-						var hasDetails = person.homeTown || person.highSchool || person.profCollege || person.workingAt;
+							var hiddenElement;
+							if (person.homeTown || person.highSchool || person.profCollege || person.workingAt) {
+								newItem.attr("href", "#");
+								hiddenElement = $("<div class='details'>").css("display", "none");
+								var html = "";
 
-						var hiddenElement;
-						if (hasDetails) {
-							hiddenElement = $("<div class='details'>");
-							var html = "";
+								if (person.homeTown)
+									html += "<strong>Home Town:</strong> " + person.homeTown + "<br />";
 
-							if (person.homeTown)
-								html += "<strong>Home Town:</strong> " + person.homeTown + "<br />";
+								if (person.highSchool)
+									html += "<strong>High School:</strong> " + person.highSchool + "<br />";
 
-							if (person.highSchool)
-								html += "<strong>High School:</strong> " + person.highSchool + "<br />";
+								if (person.profCollege)
+									html += "<strong>College:</strong> " + person.profCollege + "<br />";
 
-							if (person.profCollege)
-								html += "<strong>College:</strong> " + person.profCollege + "<br />";
+								if (person.workingAt)
+									html += "<strong>Working At:</strong> " + person.workingAt + "<br />";
 
-							if (person.workingAt)
-								html += "<strong>Working At:</strong> " + person.workingAt + "<br />";
+								newItem.append(hiddenElement.html(html));
 
-							newItem.append(hiddenElement.html(html));
+							}
 
-						}
-
-						newItem.click(function() {
-							if (hiddenElement)
-								hiddenElement.slideToggle(300);
-						});
-						$(".cityInfo").append(newItem);
+							newItem.click(function() {
+								if (hiddenElement)
+									hiddenElement.slideToggle(200, function() {
+										if ($(this).is(":hidden")) {
+											
+										}
+									});
+							});
+							$(".cityInfo").append(newItem);
+						})();
 
 					}
 
