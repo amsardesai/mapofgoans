@@ -237,9 +237,40 @@ $(function() {
 					$(".cityInfo").empty();
 					
 					for (var k = 0; k < curCity.people.length; k++) {
+						var person = curCity.people[k];
+
 						var newItem = $("<div class='person'>");
-						newItem.append($("<div class='name'>").text(curCity.people[k].name));
+						newItem.append($("<div class='name'>").text(person.name));
+
+						var hasDetails = person.homeTown || person.highSchool || person.profCollege || person.workingAt;
+
+						var hiddenElement;
+						if (hasDetails) {
+							hiddenElement = $("<div class='details'>");
+							var html = "";
+
+							if (person.homeTown)
+								html += "<strong>Home Town:</strong> " + person.homeTown + "<br />";
+
+							if (person.highSchool)
+								html += "<strong>High School:</strong> " + person.highSchool + "<br />";
+
+							if (person.profCollege)
+								html += "<strong>College:</strong> " + person.profCollege + "<br />";
+
+							if (person.workingAt)
+								html += "<strong>Working At:</strong> " + person.workingAt + "<br />";
+
+							newItem.append(hiddenElement.html(html));
+
+						}
+
+						newItem.click(function() {
+							if (hiddenElement)
+								hiddenElement.slideToggle(300);
+						});
 						$(".cityInfo").append(newItem);
+
 					}
 
 				});

@@ -108,7 +108,7 @@ section {
 		display: none;
 		padding: 7px;
 		text-align: center;
-		border-bottom: 2px solid lighten(@color-3, 10%);
+		border-bottom: 2px solid lighten(@color-3, 5%);
 		.peopleCount {
 			font-size: 160%;
 			font-weight: bold;
@@ -119,16 +119,27 @@ section {
 		overflow-y: auto;
 		max-height: 300px;
 		.person {
-			border-top: 2px solid lighten(@color-3, 10%);
-			padding: 7px 15px;
+			border-top: 2px solid lighten(@color-3, 5%);
 			&:first-child {
 				border-top: 0;
 			}
 			&:nth-child(odd) {
-				background-color: lighten(@color-2, 10%);
+				background-color: lighten(@color-2, 5%);
 			}
 			&:nth-child(even) {
-				background-color: lighten(@color-2, 20%);
+				background-color: lighten(@color-2, 10%);
+			}
+			.name {
+				padding: 7px 15px;
+			}
+			.details {
+				border-top: 2px solid lighten(@color-3, 5%);
+				padding: 7px 0 9px 0;
+				margin: 0 15px 0 20px;
+				font-size: 80%;
+				strong {
+					font-weight: bold;
+				}
 			}
 		}
 	}
