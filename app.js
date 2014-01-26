@@ -21,7 +21,7 @@ var port = process.env.PORT || 3000;
 var env = app.get("env");
 
 // Database Connections
-var databaseUrl = (env == "development") ? "test" : process.env.MONGOHQ_URL;
+var databaseUrl = process.env.MONGOHQ_URL;
 var collections = ["password", "cities"];
 var db = mongojs.connect(databaseUrl, collections);
 
