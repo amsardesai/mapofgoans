@@ -10,12 +10,8 @@ var path = require('path');
 var fs = require('fs');
 var multiparty = require('multiparty');
 var geocoder = require('geocoder');
+var mongojs = require('mongojs');
 var xlsx = require('node-xlsx');
-
-// Database Connections
-var databaseUrl = "test";
-var collections = ["password", "cities"];
-var db = require("mongojs").connect(databaseUrl, collections);
 
 // Initialize Express
 var app = express();
@@ -23,6 +19,11 @@ var app = express();
 // Get port and environment
 var port = process.env.PORT || 3000;
 var env = app.get("env");
+
+// Database Connections
+var databaseUrl = (env == "development") ? "test" : process.env.MONGOHQ_URL;
+var collections = ["password", "cities"];
+var db = mongojs.connect(databaseUrl, collections);
 
 // all environments
 app.configure(function() {
