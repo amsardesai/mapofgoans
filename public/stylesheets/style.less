@@ -96,8 +96,6 @@ section {
 	line-height: 1.5;
 	border: 5px solid @color-3;
 	background-color: @color-2;
-	box-sizing: border-box;
-	-moz-box-sizing: border-box;
 	.tooltip {
 		font-size: 110%;
 		text-align: center;
@@ -118,6 +116,7 @@ section {
 	.cityInfo {
 		overflow-y: auto;
 		max-height: 300px;
+		display: none;
 		.person {
 			display: block;
 			min-height: 20px;
@@ -189,16 +188,25 @@ footer {
 		border-radius: 5px;
 		background-color: #000;
 		opacity: 0.8;
-		box-sizing: border-box;
-		-moz-box-sizing: border-box;
 		padding: 10px;
-		height: @footer-share-height;
+		height: @footer-share-height - 20px;
 		text-align: center;
 		div {
 			display: inline-block;
 			margin-right: 10px;
 		}
 	}
+}
+
+.notSupported {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 100;
+	padding: 20px;
+	background: #fff;
 }
 
 @media screen and (max-width: 960px) {

@@ -6,8 +6,20 @@ var color3 = "#C35C00";
 
 var markers = [];
 
-
 $(function() {
+
+	if (!Modernizr.generatedcontent) {
+		var newDiv = $("<div class='notSupported'>");
+		var notice = "Your browser is too old to view this application. Please download a modern browser, such as Google Chrome or Mozilla Firefox.";
+		$("body").append(newDiv.text(notice));
+		return;
+	}
+
+	// Viewport
+	var viewport = {
+		"width": $(window).width(),
+		"height": $(window).height()
+	};
 
 	// Styles in map
 	var styleArray = [
@@ -81,10 +93,14 @@ $(function() {
 		}
 	];
 
+	// Set initial zoom and position based on screen width
+	var initZoom = viewport.width < 600 ? 3 : 4;
+	var initLng = viewport.width < 600 ? -100 : -107;
+
 	// Options for map
 	var mapOptions = {
-		center: new google.maps.LatLng(40, -107),
-		zoom: 4,
+		center: new google.maps.LatLng(40, initLng),
+		zoom: initZoom,
 		panControl: !Modernizr.touch,
 		panControlOptions: {
 			position: google.maps.ControlPosition.RIGHT_TOP
@@ -105,8 +121,8 @@ $(function() {
 	map.setOptions({ styles: styleArray });
 
 	// Limit the zoom level
-	var minZoomLevel = 3;
-	var maxZoomLevel = 8;
+	var minZoomLevel = viewport.width < 600 ? 2 : 3;
+	var maxZoomLevel = 9;
 	google.maps.event.addListener(map, 'zoom_changed', function() {
 		if (map.getZoom() < minZoomLevel)
 			map.setZoom(minZoomLevel);
@@ -243,7 +259,7 @@ $(function() {
 							// If details exist then display them
 							var hiddenElement;
 							if (person.homeTown || person.highSchool || person.profCollege || person.workingAt) {
-								newItem.attr("href", "#").addClass("hasDropdown");
+								newItem.attr("href", "javascript:void()").addClass("hasDropdown");
 								hiddenElement = $("<div class='details'>").css("display", "none");
 								var html = "";
 								if (person.homeTown)
