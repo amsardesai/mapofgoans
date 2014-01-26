@@ -111,7 +111,7 @@ $(function() {
 	map.setOptions({ styles: styleArray });
 
 	google.maps.event.addListener(map, "click", function() {
-		$(".cityInfo").empty();
+		$(".cityInfo").empty().hide();
 		$(".pointerInfo").hide();
 		$(".tooltip").show();
 		for (var j = 0; j < markers.length; j++) {
@@ -239,7 +239,8 @@ $(function() {
 						(function() {
 							var person = curCity.people[k];
 
-							var newItem = $("<a class='person'>");
+							var newItem = Modernizr.touch ? $("<a>") : $("<div>");
+							newItem.addClass("person");
 							newItem.append($("<div class='name'>").text(person.name));
 
 							var hiddenElement;
@@ -272,7 +273,7 @@ $(function() {
 										}
 									});
 							});
-							$(".cityInfo").append(newItem);
+							$(".cityInfo").append(newItem).show();
 						})();
 
 					}
