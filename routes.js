@@ -76,6 +76,7 @@ module.exports = function(app, db, multiparty, xlsx, fs, geocoder) {
 				if (!password) {
 					deleteFile(fileLocation);
 					renderPage("Database Error");
+					console.log(err);
 				} else if (password[0].def !== fields.password[0]) {
 					deleteFile(fileLocation);
 					renderPage("You have entered the wrong password!");
