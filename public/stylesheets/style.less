@@ -8,19 +8,20 @@ blockquote:before, blockquote:after, q:before, q:after { content: ''; content: n
 table { border-collapse: collapse; border-spacing: 0; }
 
 /* ACTUAL CSS */
-@import url("http://fonts.googleapis.com/css?family=Schoolbell|Gudea:400,700,400italic");
+@import url("http://fonts.googleapis.com/css?family=Gudea:400,700|Delius+Swash+Caps");
+//@import url("http://fonts.googleapis.com/css?family=Schoolbell|Gudea:400,700,400italic|Averia+Sans+Libre:700|Bubblegum+Sans|Croissant+One|Sirin+Stencil|Delius+Swash+Caps|Love+Ya+Like+A+Sister|Berkshire+Swash");
 
 @color-1: #70D3F8;
 @color-2: #FB8C29;
 @color-3: #C35C00;
 
-@header-font: "Schoolbell", cursive;
+@header-font: "Delius Swash Caps", cursive;
 @sidebar-font: "Gudea", sans-serif;
 
+@header-font-size: 200%;
 @header-color: @color-2;
 @header-height: 60px;
-
-
+@header-font-offset: 0px;
 
 html {
 	height: 100%;
@@ -49,8 +50,8 @@ header {
 	border-bottom: 5px solid @color-3;
 	border-top: 5px solid @color-3;
 	font-family: @header-font;
-	font-size: 200%;
-	padding: 11px 10px 9px 10px;
+	font-size: @header-font-size;
+	padding: (10px + @header-font-offset) 10px (10px - @header-font-offset) 10px;
 	color: #fff;
 }
 
