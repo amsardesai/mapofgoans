@@ -245,7 +245,7 @@ $(function() {
 
 							var hiddenElement;
 							if (person.homeTown || person.highSchool || person.profCollege || person.workingAt) {
-								newItem.attr("href", "#");
+								newItem.attr("href", "#").addClass("hasDropdown");
 								hiddenElement = $("<div class='details'>").css("display", "none");
 								var html = "";
 
