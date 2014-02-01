@@ -130,77 +130,66 @@ $(function() {
 			map.setZoom(maxZoomLevel);
 	});
 	
-	// Get map data from database
-	$.getJSON("/data", function(datapoints, textStatus, jqXHR) {
-		for (var i = 0; i < datapoints.length; i++) {
 
-			// Calculate size of marker
-			var population = datapoints[i].people.length;
-			var scale = Math.round(10 * Math.pow(population / 4, 0.5));
+	// Get data after map is fully loaded
+	google.maps.event.addListenerOnce(map, 'tilesloaded', function() {
 
-			// Settings for marker
-			var icon = Modernizr.touch ? {
-				path: google.maps.SymbolPath.CIRCLE,
-				fillOpacity: 0.4,
-				fillColor: color2,
-				strokeOpacity: 1.0,
-				strokeColor: color3,
-				strokeWeight: 2,
-				scale: scale
-			} : {
-				path: google.maps.SymbolPath.CIRCLE,
-				fillOpacity: 0,
-				strokeOpacity: 0,
-				strokeWeight: 0,
-				scale: scale
-			};
+		// Get map data from database
+		$.getJSON("/data", function(datapoints, textStatus, jqXHR) {
+			for (var i = 0; i < datapoints.length; i++) {
 
-			// Initiaize marker
-			var curMarker = new google.maps.Marker({
-				position: new google.maps.LatLng(datapoints[i].location.lat,datapoints[i].location.lng),
-				map: map,
-				icon: icon
-			});
+				// Calculate size of marker
+				var population = datapoints[i].people.length;
+				var scale = Math.round(10 * Math.pow(population / 5, 0.5));
 
-			markers.push(curMarker);
+				// Settings for marker
+				var icon = Modernizr.touch ? {
+					path: google.maps.SymbolPath.CIRCLE,
+					fillOpacity: 0.4,
+					fillColor: color2,
+					strokeOpacity: 1.0,
+					strokeColor: color3,
+					strokeWeight: 2,
+					scale: scale
+				} : {
+					path: google.maps.SymbolPath.CIRCLE,
+					fillOpacity: 0,
+					strokeOpacity: 0,
+					strokeWeight: 0,
+					scale: scale
+				};
 
-			if (!Modernizr.touch) {
-
-				// Tooltip for markers
-				var tooltip = new Tooltip({
-					marker: curMarker,
-					content: population + (population == 1 ? " person" : " people") + " in <br />" + datapoints[i].name,
-					offsetX: -65,
-					offsetY: -(42 + scale),
-					cssClass: "mapTooltip"
+				// Initiaize marker
+				var curMarker = new google.maps.Marker({
+					position: new google.maps.LatLng(datapoints[i].location.lat,datapoints[i].location.lng),
+					map: map,
+					icon: icon
 				});
 
-				// Highly optimized numbers (19, 37 have high LCMs) by leaving no idle time slots or overlapping threads
-				var animationDelay = 19;
-				var datapointDelay = 37;
+				markers.push(curMarker);
 
-				// Marker animating in the beginning
-				(function() {
-					var markerNumber = i;
-					var marker = curMarker;
-					var newScale = scale;
+				if (!Modernizr.touch) {
 
-					// Recursively increases size over time
-					var animateMarker = function(marker, scale, curScale) {
-						curScale = (Math.ceil(curScale * 2) / 2) || 0;
-						if (curScale < scale) {
-							var icon = marker.getIcon();
-							icon.scale = curScale;
-							marker.setIcon(icon);
-							setTimeout(function() {
-								animateMarker(marker, scale, curScale + ((scale - curScale) * 0.2));
-							}, curScale === 0 ? 600 : animationDelay);
-						}
-					};
-					
-					// Initial call to animateMarker
-					setTimeout(function() {
-						marker.setIcon({
+					// Tooltip for markers
+					var tooltip = new Tooltip({
+						marker: curMarker,
+						content: population + (population == 1 ? " person" : " people") + " in <br />" + datapoints[i].name,
+						offsetX: -65,
+						offsetY: -(42 + scale),
+						cssClass: "mapTooltip"
+					});
+
+					// Highly optimized numbers intended to leave no idle time slots or overlapping threads
+					var animationDelay = 23;
+					var datapointDelay = 33;
+
+					// Marker animating in the beginning
+					(function() {
+						var markerNumber = i;
+						var marker = curMarker;
+						var newScale = scale * 2;
+						var curScale = 0;
+						var icon = {
 							path: google.maps.SymbolPath.CIRCLE,
 							fillOpacity: 0.4,
 							fillColor: color2,
@@ -208,84 +197,115 @@ $(function() {
 							strokeColor: color3,
 							strokeWeight: 2,
 							scale: 0
+						};
+
+						// Recursively increases size over time
+						var animateMarker = function() {
+							curScale = curScale + ((newScale - curScale) * 0.35) + 1;
+							if (curScale < newScale) {
+								icon.scale = curScale / 2;
+								setTimeout(animateMarker, animationDelay);
+							} else
+								icon.scale = newScale / 2;
+
+							marker.setIcon(icon);
+						};
+						
+						// Initial call to animateMarker
+						setTimeout(function() {
+							marker.setIcon(icon);
+							animateMarker();
+						}, Math.floor(markerNumber / 3) * datapointDelay + 100);
+					
+					})();
+				}
+
+
+				// Make markers clickable
+				(function() {
+					var currentMarker = curMarker;
+					var curIndex = i;
+					google.maps.event.addListener(curMarker, "click", function(e) {
+
+						// De-highlight all icons
+						for (var j = 0; j < markers.length; j++) {
+							var icon = markers[j].getIcon();
+							icon.fillOpacity = 0.4;
+							icon.strokeWeight = 2;
+							markers[j].setIcon(icon);
+						}
+
+						// Highlight clicked icon
+						var curIcon = currentMarker.getIcon();
+						curIcon.fillOpacity = 0.9;
+						curIcon.strokeWeight = 3;
+						currentMarker.setIcon(curIcon);
+
+						// Get city that this marker represents
+						var curCity = datapoints[curIndex];
+
+						// Sort by last name
+						var people = curCity.people;
+						people.sort(function(a, b) {
+							if (a.lastName < b.lastName)
+								return -1;
+							else if (a.lastName > b.lastName)
+								return 1;
+							return 0;
 						});
-						animateMarker(marker, newScale);
-					}, markerNumber * datapointDelay);
-				
+
+						console.log(people);
+
+						// Manipulate UI
+						$(".tooltip").hide();
+						$(".pointerInfo").show();
+						$(".city").text(curCity.name);
+						$(".peopleCount").text(people.length + " Goan" + (people.length == 1 ? "" : "s"));
+						$(".cityInfo").empty();
+						
+						// Loop all people in city
+						for (var k = 0; k < people.length; k++) {
+							(function() {
+								var person = people[k];
+
+								// Use a instead of div on mobile so they can see highlight while clicking
+								var newItem = Modernizr.touch ? $("<a>") : $("<div>");
+								newItem.addClass("person");
+								newItem.append($("<div class='name'>").text(person.name));
+
+								// If details exist then display them
+								var hiddenElement;
+								if (person.homeTown || person.highSchool || person.profCollege || person.workingAt) {
+									newItem.attr("href", "javascript:void()").addClass("hasDropdown");
+									hiddenElement = $("<div class='details'>").css("display", "none");
+									var html = "";
+									if (person.homeTown)
+										html += "<strong>Home Town:</strong> " + person.homeTown + "<br />";
+									if (person.highSchool)
+										html += "<strong>High School:</strong> " + person.highSchool + "<br />";
+									if (person.profCollege)
+										html += "<strong>College:</strong> " + person.profCollege + "<br />";
+									if (person.workingAt)
+										html += "<strong>Working At:</strong> " + person.workingAt + "<br />";
+									newItem.append(hiddenElement.html(html)).click(function() {
+										hiddenElement.slideToggle(200);
+									});
+								}
+
+								// Push person to sidebar
+								$(".cityInfo").append(newItem);
+							})();
+						}
+
+						// Show sidebar if not already shown
+						$(".cityInfo").show();
+					});
 				})();
 			}
-
-
-			// Make markers clickable
-			(function() {
-				var currentMarker = curMarker;
-				var curIndex = i;
-				google.maps.event.addListener(curMarker, "click", function(e) {
-
-					// De-highlight all icons
-					for (var j = 0; j < markers.length; j++) {
-						var icon = markers[j].getIcon();
-						icon.fillOpacity = 0.4;
-						icon.strokeWeight = 2;
-						markers[j].setIcon(icon);
-					}
-
-					// Highlight clicked icon
-					var curIcon = currentMarker.getIcon();
-					curIcon.fillOpacity = 0.9;
-					curIcon.strokeWeight = 3;
-					currentMarker.setIcon(curIcon);
-
-					// Get city that this marker represents
-					var curCity = datapoints[curIndex];
-
-					// Manipulate UI
-					$(".tooltip").hide();
-					$(".pointerInfo").show();
-					$(".city").text(curCity.name);
-					$(".peopleCount").text(curCity.people.length + " Goan" + (curCity.people.length == 1 ? "" : "s"));
-					$(".cityInfo").empty();
-					
-					// Loop all people in city
-					for (var k = 0; k < curCity.people.length; k++) {
-						(function() {
-							var person = curCity.people[k];
-
-							// Use a instead of div on mobile so they can see highlight while clicking
-							var newItem = Modernizr.touch ? $("<a>") : $("<div>");
-							newItem.addClass("person");
-							newItem.append($("<div class='name'>").text(person.name));
-
-							// If details exist then display them
-							var hiddenElement;
-							if (person.homeTown || person.highSchool || person.profCollege || person.workingAt) {
-								newItem.attr("href", "javascript:void()").addClass("hasDropdown");
-								hiddenElement = $("<div class='details'>").css("display", "none");
-								var html = "";
-								if (person.homeTown)
-									html += "<strong>Home Town:</strong> " + person.homeTown + "<br />";
-								if (person.highSchool)
-									html += "<strong>High School:</strong> " + person.highSchool + "<br />";
-								if (person.profCollege)
-									html += "<strong>College:</strong> " + person.profCollege + "<br />";
-								if (person.workingAt)
-									html += "<strong>Working At:</strong> " + person.workingAt + "<br />";
-								newItem.append(hiddenElement.html(html)).click(function() {
-									hiddenElement.slideToggle(200);
-								});
-							}
-
-							// Push person to sidebar
-							$(".cityInfo").append(newItem);
-						})();
-					}
-
-					// Show sidebar if not already shown
-					$(".cityInfo").show();
-				});
-			})();
-		}
+		});
 	});
+
+
 
 	// Clean all markers if clicked outside map
 	google.maps.event.addListener(map, "click", function() {
