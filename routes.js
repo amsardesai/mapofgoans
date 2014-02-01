@@ -2,15 +2,15 @@
 
 /*jshint -W083 */
 
-var livesInColumn = "LIVES_IN";
-var fullNameColumn = "FULLNAME";
-var firstNameColumn = "FIRSTNAME";
-var middleNameColumn = "MIDDLENAME";
-var lastNameColumn = "LASTNAME";
-var homeTownColumn = "HOME_TOWN";
-var highSchoolColumn = "HIGH_SCHOOL";
-var profCollegeColumn = "PROF_COLLEGE";
-var workingAtColumn = "WORKING_AT";
+var livesInTitle = "LIVES_IN";
+var fullNameTitle = "FULLNAME";
+var firstNameTitle = "FIRSTNAME";
+var middleNameTitle = "MIDDLENAME";
+var lastNameTitle = "LASTNAME";
+var homeTownTitle = "HOME_TOWN";
+var highSchoolTitle = "HIGH_SCHOOL";
+var profCollegeTitle = "PROF_COLLEGE";
+var workingAtTitle = "WORKING_AT";
 var workSheetNumber = 0;
 
 module.exports = function(app, db, multiparty, xlsx, fs, geocoder) {
@@ -87,67 +87,74 @@ module.exports = function(app, db, multiparty, xlsx, fs, geocoder) {
 						var data = obj.worksheets[workSheetNumber].data;
 
 						var header = data[0];
-						var livesIn = -1,
-							fullName = -1,
-							firstName = -1,
-							middleName = -1,
-							lastName = -1,
-							homeTown = -1,
-							highSchool = -1,
-							profCollege = -1,
-							workingAt = -1;
+						var livesInColumn = -1,
+							fullNameColumn = -1,
+							firstNameColumn = -1,
+							middleNameColumn = -1,
+							lastNameColumn = -1,
+							homeTownColumn = -1,
+							highSchoolColumn = -1,
+							profCollegeColumn = -1,
+							workingAtColumn = -1;
 
 						for (var i = 0; i < header.length; i++) {
 							var val = header[i].value;
-							if (val == livesInColumn) livesIn = i;
-							else if (val == fullNameColumn) fullName = i;
-							else if (val == firstNameColumn) firstName = i;
-							else if (val == middleNameColumn) middleName = i;
-							else if (val == lastNameColumn) lastName = i;
-							else if (val == homeTownColumn) homeTown = i;
-							else if (val == highSchoolColumn) highSchool = i;
-							else if (val == profCollegeColumn) profCollege = i;
-							else if (val == workingAtColumn) workingAt = i;
+							if (val == livesInTitle) livesInColumn = i;
+							else if (val == fullNameTitle) fullNameColumn = i;
+							else if (val == firstNameTitle) firstNameColumn = i;
+							else if (val == middleNameTitle) middleNameColumn = i;
+							else if (val == lastNameTitle) lastNameColumn = i;
+							else if (val == homeTownTitle) homeTownColumn = i;
+							else if (val == highSchoolTitle) highSchoolColumn = i;
+							else if (val == profCollegeTitle) profCollegeColumn = i;
+							else if (val == workingAtTitle) workingAtColumn = i;
 						}
 
-						if (livesIn == -1 ||
-							fullName == -1 ||
-							firstName == -1 ||
-							middleName == -1 ||
-							lastName == -1 ||
-							homeTown == -1 ||
-							highSchool == -1 ||
-							profCollege == -1 ||
-							workingAt == -1)
+						//console.log(livesIn + " " + fullName + " " + firstName + " " + middleName + " " + lastName + " " + homeTown + " " + highSchool + " " + profCollege + " " + workingAt);
+
+						if (livesInColumn == -1 ||
+							fullNameColumn == -1 ||
+							firstNameColumn == -1 ||
+							middleNameColumn == -1 ||
+							lastNameColumn == -1 ||
+							homeTownColumn == -1 ||
+							highSchoolColumn == -1 ||
+							profCollegeColumn == -1 ||
+							workingAtColumn == -1)
 							throw("");
 
 						db.cities.remove({}, function() {
 
+							console.log("Starting processing...");
+
 							for (var j = 1; j < data.length; j++) {
 								var currentField = data[j];
-								var livesIn = currentField[livesIn] ? currentField[livesIn].value : null;
-								var cityCheck = /^\s*[A-Za-z \/]+, *[A-Z]{2}\s*$/;
-
-								if (cityCheck.test(livesIn)) {
+								var cityCheck = /^ *[A-Za-z \.\/]+, *[A-Za-z]{2} *$/;
+								var livesInCheck = currentField[livesInColumn] ? currentField[livesInColumn].value : null;
+								
+								if (cityCheck.test(livesInCheck)) {
 									// City is in the format city, state (Toronto, ON)
 
-									fullName = currentField[fullName] ? currentField[fullName].value : null;
-									firstName = currentField[firstName] ? currentField[firstName].value : null;
-									middleName = currentField[middleName] ? currentField[middleName].value : null;
-									lastName = currentField[lastName] ? currentField[lastName].value : null;
-									homeTown = currentField[homeTown] ? currentField[homeTown].value : null;
-									highSchool = currentField[highSchool] ? currentField[highSchool].value : null;
-									profCollege = currentField[profCollege] ? currentField[profCollege].value : null;
-									workingAt = currentField[workingAt] ? currentField[workingAt].value : null;
-
 									(function() {
+
+										var livesIn = livesInCheck;
+										var fullName = currentField[fullNameColumn] ? currentField[fullNameColumn].value : null;
+										var firstName = currentField[firstNameColumn] ? currentField[firstNameColumn].value : null;
+										var middleName = currentField[middleNameColumn] ? currentField[middleNameColumn].value : null;
+										var lastName = currentField[lastNameColumn] ? currentField[lastNameColumn].value : null;
+										var homeTown = currentField[homeTownColumn] ? currentField[homeTownColumn].value : null;
+										var highSchool = currentField[highSchoolColumn] ? currentField[highSchoolColumn].value : null;
+										var profCollege = currentField[profCollegeColumn] ? currentField[profCollegeColumn].value : null;
+										var workingAt = currentField[workingAtColumn] ? currentField[workingAtColumn].value : null;
 										var findGeocode;
+
 										(findGeocode = function(livesIn, fullName, firstName, middleName, lastName, homeTown, highSchool, profCollege, workingAt) {
 											geocoder.geocode(livesIn, function(err, geocodeData) {
 												if (geocodeData.status === "OVER_QUERY_LIMIT") {
 													setTimeout(function() {
 														findGeocode(livesIn, fullName, firstName, middleName, lastName, homeTown, highSchool, profCollege, workingAt);
 													}, 1000);
+													console.log("Error: Over query limit for " + fullName + " at " + livesIn + "! Retrying...");
 												} else {
 													var results = geocodeData.results[0];
 
