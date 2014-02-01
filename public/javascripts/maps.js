@@ -5,6 +5,7 @@ var color2 = "#FB8C29";
 var color3 = "#C35C00";
 
 var markers = [];
+var cityData = [];
 
 $(function() {
 
@@ -135,18 +136,21 @@ $(function() {
 	google.maps.event.addListenerOnce(map, 'idle', function() {
 
 		// Get map data from database
-		$.getJSON("/data", function(datapoints, textStatus, jqXHR) {
+		$.getJSON("/data", function(data, textStatus, jqXHR) {
+			cityData = data;
 
 			// Measure how many timeouts and intervals are set
 			var totalTimeouts = 0;
 			var totalIntervals = 0;
 			var totalFrames = 0;
-			
-			for (var i = 0; i < datapoints.length; i++) {
 
+			// Limit number of points displayed on smaller devices
+			var initialValue = viewport.width < 400 ? cityData.length - 100 : 0;
+			
+			for (var i = 0; i < cityData.length; i++) {
 
 				// Calculate size of marker
-				var population = datapoints[i].people.length;
+				var population = cityData[i].people.length;
 				var scale = Math.round(10 * Math.pow(population / 5, 0.5));
 
 				// Settings for marker
@@ -168,11 +172,12 @@ $(function() {
 
 				// Initiaize marker
 				var curMarker = new google.maps.Marker({
-					position: new google.maps.LatLng(datapoints[i].location.lat,datapoints[i].location.lng),
+					position: new google.maps.LatLng(cityData[i].location.lat,cityData[i].location.lng),
 					map: map,
 					icon: icon
 				});
 
+				cityData[i].marker = curMarker;
 				markers.push(curMarker);
 
 				// Load social media buttons when animation is complete
@@ -186,7 +191,7 @@ $(function() {
 					// Tooltip for markers
 					var tooltip = new Tooltip({
 						marker: curMarker,
-						content: population + (population == 1 ? " person" : " people") + " in <br />" + datapoints[i].name,
+						content: population + (population == 1 ? " person" : " people") + " in <br />" + cityData[i].name,
 						offsetX: -70,
 						offsetY: -(42 + scale),
 						cssClass: "mapTooltip"
@@ -272,7 +277,7 @@ $(function() {
 						currentMarker.setIcon(curIcon);
 
 						// Get city that this marker represents
-						var curCity = datapoints[curIndex];
+						var curCity = cityData[curIndex];
 
 						// Sort by last name
 						var people = curCity.people;
@@ -334,23 +339,25 @@ $(function() {
 					});
 				})();
 			}
+
+			// Clean all markers if clicked outside map
+			google.maps.event.addListener(map, "click", function() {
+				$(".cityInfo").empty().hide();
+				$(".pointerInfo").hide();
+				$(".tooltip").show();
+				for (var j = 0; j < markers.length; j++) {
+					var icon = markers[j].getIcon();
+					icon.fillOpacity = 0.4;
+					icon.strokeWeight = 2;
+					markers[j].setIcon(icon);
+				}
+			});
+
 		});
 	});
 
 
 
-	// Clean all markers if clicked outside map
-	google.maps.event.addListener(map, "click", function() {
-		$(".cityInfo").empty().hide();
-		$(".pointerInfo").hide();
-		$(".tooltip").show();
-		for (var j = 0; j < markers.length; j++) {
-			var icon = markers[j].getIcon();
-			icon.fillOpacity = 0.4;
-			icon.strokeWeight = 2;
-			markers[j].setIcon(icon);
-		}
-	});
 
 });
 
