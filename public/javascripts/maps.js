@@ -136,6 +136,11 @@ $(function() {
 
 		// Get map data from database
 		$.getJSON("/data", function(datapoints, textStatus, jqXHR) {
+
+					var totalFrames = 0;
+					var totalTimeouts = 0;
+					var totalIntervals = 0;
+
 			for (var i = 0; i < datapoints.length; i++) {
 
 				// Calculate size of marker
@@ -156,7 +161,7 @@ $(function() {
 					fillOpacity: 0,
 					strokeOpacity: 0,
 					strokeWeight: 0,
-					scale: scale
+					scale: 0
 				};
 
 				// Initiaize marker
@@ -167,6 +172,11 @@ $(function() {
 				});
 
 				markers.push(curMarker);
+
+				// Load social media buttons when animation is complete
+				var finishedAnimation = function() {
+					$.getScript("/javascripts/social.js");
+				};
 
 				if (!Modernizr.touch) {
 
@@ -180,8 +190,9 @@ $(function() {
 					});
 
 					// Highly optimized numbers intended to leave no idle time slots or overlapping threads
-					var animationDelay = 23;
+					var animationDelay = 41;
 					var datapointDelay = 33;
+
 
 					// Marker animating in the beginning
 					(function() {
@@ -199,26 +210,37 @@ $(function() {
 							scale: 0
 						};
 
+						var count = 0;
+						var curTimer;
+
 						// Recursively increases size over time
 						var animateMarker = function() {
-							curScale = curScale + ((newScale - curScale) * 0.35) + 1;
+							curScale = Math.ceil(curScale + ((newScale - curScale) * 0.6) + 0.3);
 							if (curScale < newScale) {
 								icon.scale = curScale / 2;
-								setTimeout(animateMarker, animationDelay);
-							} else
+							} else {
 								icon.scale = newScale / 2;
+								clearInterval(curTimer);
+								if (--totalIntervals === 0 && totalTimeouts === 0)
+									finishedAnimation();
+							}
 
+							//count++;
+							//totalFrames++;
+							//console.log("timeouts: "+totalTimeouts+", intervals: "+totalIntervals+", frame "+totalFrames+": mark #"+markerNumber+" @ "+count+": "+curScale+"/"+newScale);
 							marker.setIcon(icon);
 						};
 						
 						// Initial call to animateMarker
+						totalTimeouts++;
 						setTimeout(function() {
-							marker.setIcon(icon);
-							animateMarker();
-						}, Math.floor(markerNumber / 3) * datapointDelay + 50);
-					
+							totalTimeouts--;
+							totalIntervals++;
+							curTimer = setInterval(animateMarker, animationDelay);
+						}, Math.floor(markerNumber / 3) * datapointDelay + 100);
+
 					})();
-				}
+				} else finishedAnimation();
 
 
 				// Make markers clickable
@@ -304,7 +326,7 @@ $(function() {
 				})();
 			}
 
-		console.log(markers);
+		//console.log(markers);
 
 		});
 	});
