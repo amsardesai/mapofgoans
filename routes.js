@@ -4,6 +4,9 @@
 
 var livesInColumn = "LIVES_IN";
 var fullNameColumn = "FULLNAME";
+var firstNameColumn = "FIRSTNAME";
+var middleNameColumn = "MIDDLENAME";
+var lastNameColumn = "LASTNAME";
 var homeTownColumn = "HOME_TOWN";
 var highSchoolColumn = "HIGH_SCHOOL";
 var profCollegeColumn = "PROF_COLLEGE";
@@ -84,84 +87,119 @@ module.exports = function(app, db, multiparty, xlsx, fs, geocoder) {
 						var data = obj.worksheets[workSheetNumber].data;
 
 						var header = data[0];
-						var livesIn, fullName, homeTown, highSchool, profCollege, workingAt;
+						var livesIn = -1,
+							fullName = -1,
+							firstName = -1,
+							middleName = -1,
+							lastName = -1,
+							homeTown = -1,
+							highSchool = -1,
+							profCollege = -1,
+							workingAt = -1;
+
 						for (var i = 0; i < header.length; i++) {
 							var val = header[i].value;
 							if (val == livesInColumn) livesIn = i;
 							else if (val == fullNameColumn) fullName = i;
+							else if (val == firstNameColumn) firstName = i;
+							else if (val == middleNameColumn) middleName = i;
+							else if (val == lastNameColumn) lastName = i;
 							else if (val == homeTownColumn) homeTown = i;
 							else if (val == highSchoolColumn) highSchool = i;
 							else if (val == profCollegeColumn) profCollege = i;
 							else if (val == workingAtColumn) workingAt = i;
 						}
 
-						if (typeof livesIn === 'undefined' ||
-							typeof fullName === 'undefined' ||
-							typeof homeTown === 'undefined' ||
-							typeof highSchool === 'undefined' ||
-							typeof profCollege === 'undefined' ||
-							typeof workingAt === 'undefined')
+						if (livesIn == -1 ||
+							fullName == -1 ||
+							firstName == -1 ||
+							middleName == -1 ||
+							lastName == -1 ||
+							homeTown == -1 ||
+							highSchool == -1 ||
+							profCollege == -1 ||
+							workingAt == -1)
 							throw("");
 
 						db.cities.remove({}, function() {
 
 							for (var j = 1; j < data.length; j++) {
 								var currentField = data[j];
-								var livesInParsed = currentField[livesIn] ? currentField[livesIn].value : null;
-								var cityCheck = /^[A-Za-z ]+, *[A-Z]{2}$/;
+								var livesIn = currentField[livesIn] ? currentField[livesIn].value : null;
+								var cityCheck = /^\s*[A-Za-z \/]+, *[A-Z]{2}\s*$/;
 
-								if (cityCheck.test(livesInParsed)) {
+								if (cityCheck.test(livesIn)) {
 									// City is in the format city, state (Toronto, ON)
 
-									var fullNameParsed = currentField[fullName] ? currentField[fullName].value : null;
-									var homeTownParsed = currentField[homeTown] ? currentField[homeTown].value : null;
-									var highSchoolParsed = currentField[highSchool] ? currentField[highSchool].value : null;
-									var profCollegeParsed = currentField[profCollege] ? currentField[profCollege].value : null;
-									var workingAtParsed = currentField[workingAt] ? currentField[workingAt].value : null;
+									fullName = currentField[fullName] ? currentField[fullName].value : null;
+									firstName = currentField[firstName] ? currentField[firstName].value : null;
+									middleName = currentField[middleName] ? currentField[middleName].value : null;
+									lastName = currentField[lastName] ? currentField[lastName].value : null;
+									homeTown = currentField[homeTown] ? currentField[homeTown].value : null;
+									highSchool = currentField[highSchool] ? currentField[highSchool].value : null;
+									profCollege = currentField[profCollege] ? currentField[profCollege].value : null;
+									workingAt = currentField[workingAt] ? currentField[workingAt].value : null;
 
 									(function() {
-										var city = livesInParsed;
-										var fullName = fullNameParsed;
-										var homeTown = homeTownParsed;
-										var highSchool = highSchoolParsed;
-										var profCollege = profCollegeParsed;
-										var workingAt = workingAtParsed;
 										var findGeocode;
-										(findGeocode = function(city, fullName, homeTown, highSchool, profCollege, workingAt) {
-											geocoder.geocode(city, function(err, geocodeData) {
+										(findGeocode = function(livesIn, fullName, firstName, middleName, lastName, homeTown, highSchool, profCollege, workingAt) {
+											geocoder.geocode(livesIn, function(err, geocodeData) {
 												if (geocodeData.status === "OVER_QUERY_LIMIT") {
 													setTimeout(function() {
-														findGeocode(city, fullName, homeTown, highSchool, profCollege, workingAt);
+														findGeocode(livesIn, fullName, firstName, middleName, lastName, homeTown, highSchool, profCollege, workingAt);
 													}, 1000);
 												} else {
 													var results = geocodeData.results[0];
-													var parsedCity = results.formatted_address.match(/[A-Za-z ]+, [A-Z]{2}/)[0];
 
-													db.cities.update({
-														name: parsedCity,
-													}, {
-														$setOnInsert: {
-															location: results.geometry.location
-														},
-														$push: {
-															people: {
-																$each: [
-																	{
-																		name: fullName,
-																		homeTown: homeTown,
-																		highSchool: highSchool,
-																		profCollege: profCollege,
-																		workingAt: workingAt
-																	}
-																]
+													var address_components = results.address_components;
+													var city, state;
+													for (var k = 0; k < address_components.length; k++) {
+														var types = address_components[k].types;
+														if (types.indexOf("locality") >= 0)
+															city = address_components[k].long_name;
+														else if (types.indexOf("administrative_area_level_1") >= 0)
+															state = address_components[k].short_name;
+													}
+
+
+													if (city && state) {
+														var parsedCity = city + ", " + state;
+
+														console.log("Processed: " + fullName + " at " + parsedCity);
+														
+														db.cities.update({
+															name: parsedCity,
+														}, {
+															$setOnInsert: {
+																location: results.geometry.location
+															},
+															$push: {
+																people: {
+																	$each: [
+																		{
+																			name: fullName,
+																			firstName: firstName,
+																			middleName: middleName,
+																			lastName: lastName,
+																			homeTown: homeTown,
+																			highSchool: highSchool,
+																			profCollege: profCollege,
+																			workingAt: workingAt
+																		}
+																	]
+																}
 															}
-														}
-													}, {
-														upsert: true
-													});
+														}, {
+															upsert: true
+														});
+
+													} else {
+														console.log("Error: " + fullName + " at " + livesIn + " parsed as " + results.formatted_address);
+													}
+
 												}
 											});
-										}).call(null, city, fullName, homeTown, highSchool, profCollege, workingAt);
+										}).call(null, livesIn, fullName, firstName, middleName, lastName, homeTown, highSchool, profCollege, workingAt);
 									})();
 								}
 							}
