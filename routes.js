@@ -34,6 +34,9 @@ module.exports = function(app, db, multiparty, xlsx, fs, geocoder) {
 	app.get("/data", function(req, res) {
 		res.header("Content-type", "text/json");
 		db.cities.find(function(err, data) {
+			data.sort(function(a, b) {
+				return a.people.length - b.people.length;
+			});
 			res.json(data);
 		});
 	});
