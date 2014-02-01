@@ -187,7 +187,7 @@ $(function() {
 					var tooltip = new Tooltip({
 						marker: curMarker,
 						content: population + (population == 1 ? " person" : " people") + " in <br />" + datapoints[i].name,
-						offsetX: -65,
+						offsetX: -70,
 						offsetY: -(42 + scale),
 						cssClass: "mapTooltip"
 					});
