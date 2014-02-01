@@ -307,17 +307,18 @@ $(function() {
 								var hiddenElement;
 								if (person.homeTown || person.highSchool || person.profCollege || person.workingAt) {
 									newItem.attr("href", "#").addClass("hasDropdown");
-									hiddenElement = $("<div class='details'>").css("display", "none");
-									var html = "";
+									hiddenElement = $("<ul>").css("display", "none");
+
 									if (person.homeTown)
-										html += "<strong>Home Town:</strong> " + person.homeTown + "<br />";
+										hiddenElement.append($("<li>").html("<strong>Home Town:</strong> " + person.homeTown + "<br />"));
 									if (person.highSchool)
-										html += "<strong>High School:</strong> " + person.highSchool + "<br />";
+										hiddenElement.append($("<li>").html("<strong>High School:</strong> " + person.highSchool + "<br />"));
 									if (person.profCollege)
-										html += "<strong>College:</strong> " + person.profCollege + "<br />";
+										hiddenElement.append($("<li>").html("<strong>College:</strong> " + person.profCollege + "<br />"));
 									if (person.workingAt)
-										html += "<strong>Working At:</strong> " + person.workingAt + "<br />";
-									newItem.append(hiddenElement.html(html)).click(function(e) {
+										hiddenElement.append($("<li>").html("<strong>Working At:</strong> " + person.workingAt + "<br />"));
+
+									newItem.append(hiddenElement).click(function(e) {
 										e.preventDefault();
 										hiddenElement.slideToggle(200);
 									});

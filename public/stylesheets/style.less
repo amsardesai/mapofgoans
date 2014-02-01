@@ -129,12 +129,19 @@ section {
 			position: relative;
 			&.hasDropdown {
 				cursor: pointer;
+				.name {
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					padding: 7px 80px 7px 15px;
+				}
 				&:after {
 					content: "[click for more]";
 					position: absolute;
-					top: 10px;
-					right: 8px;
+					top: 0;
+					right: 0;
 					font-size: 65%;
+					padding: 10px;
 				}
 			}
 			&:nth-child(odd) {
@@ -146,13 +153,23 @@ section {
 			.name {
 				padding: 7px 15px;
 			}
-			.details {
-				border-top: 1px solid lighten(@color-3, 5%);
+			ul {
+				border-top: 2px solid lighten(@color-3, 6%);
 				padding: 7px 0 9px 0;
 				margin: 0 15px 0 20px;
 				font-size: 80%;
-				strong {
-					font-weight: bold;
+				padding-left: 1em;  
+				text-indent: -1em; 
+				li {
+					&:before {
+						content: "-";
+						display: inline-block;
+						margin-left: 1em;
+					}
+					strong {
+						font-weight: bold;
+					}
+
 				}
 			}
 		}
@@ -161,8 +178,8 @@ section {
 			display: block;
 			height: 0;
 			padding: 0;
-			border-top: 2px solid lighten(@color-2, 25%);
-			margin: 8px 10px;
+			border-top: 2px solid lighten(@color-2, 30%);
+			margin: 8px 40%;
 		}
 	}
 
@@ -220,7 +237,17 @@ footer {
 @media screen and (max-width: 960px) {
 	section {
 		width: 230px;
-		//padding: 15px 20px;
+		.cityInfo .person {
+			&.hasDropdown .name {
+				padding: 7px 80px 7px 10px; 
+			}
+			.name {
+				padding: 7px 10px;
+			}
+			ul {
+				margin: 0 10px 0 15px;
+			}
+		}
 	}
 }
 
@@ -232,10 +259,17 @@ footer {
 		position: static;
 		border-left: 0;
 		border-right: 0;
+		border-radius: 0;
 		display: block;
 		width: 100%;
 		.cityInfo {
 			max-height: none;
+			.person:last-child {
+				border-bottom: 0;
+			}
+			&:after {
+				display: none;
+			}
 		}
 	}
 	footer {
