@@ -132,16 +132,18 @@ $(function() {
 	
 
 	// Get data after map is fully loaded
-	google.maps.event.addListenerOnce(map, 'tilesloaded', function() {
+	google.maps.event.addListenerOnce(map, 'idle', function() {
 
 		// Get map data from database
 		$.getJSON("/data", function(datapoints, textStatus, jqXHR) {
 
-					var totalFrames = 0;
-					var totalTimeouts = 0;
-					var totalIntervals = 0;
-
+			// Measure how many timeouts and intervals are set
+			var totalTimeouts = 0;
+			var totalIntervals = 0;
+			var totalFrames = 0;
+			
 			for (var i = 0; i < datapoints.length; i++) {
+
 
 				// Calculate size of marker
 				var population = datapoints[i].people.length;
@@ -175,6 +177,7 @@ $(function() {
 
 				// Load social media buttons when animation is complete
 				var finishedAnimation = function() {
+					$.ajaxSetup({ cache: true });
 					$.getScript("/javascripts/social.js");
 				};
 
@@ -189,55 +192,60 @@ $(function() {
 						cssClass: "mapTooltip"
 					});
 
-					// Highly optimized numbers intended to leave no idle time slots or overlapping threads
-					var animationDelay = 41;
-					var datapointDelay = 33;
-
+					// Configuration for animation
+					var animationDelay = 31;
+					var datapointDelay = 129;
+					var initialDelay = 0;
+					var laggingThreshold = 400;
+					var simultaneousMarkers = 12;
 
 					// Marker animating in the beginning
 					(function() {
-						var markerNumber = i;
-						var marker = curMarker;
-						var newScale = scale * 2;
-						var curScale = 0;
-						var icon = {
-							path: google.maps.SymbolPath.CIRCLE,
-							fillOpacity: 0.4,
-							fillColor: color2,
-							strokeOpacity: 1.0,
-							strokeColor: color3,
-							strokeWeight: 2,
-							scale: 0
-						};
-
-						var count = 0;
-						var curTimer;
+						var markerNumber = i,
+							marker = curMarker,
+							newScale = scale * 2,
+							curScale = 0,
+							icon = {
+								path: google.maps.SymbolPath.CIRCLE,
+								fillOpacity: 0.4,
+								fillColor: color2,
+								strokeOpacity: 1.0,
+								strokeColor: color3,
+								strokeWeight: 2,
+								scale: 0
+							},
+							isLagging = false,
+							curTimer;
 
 						// Recursively increases size over time
 						var animateMarker = function() {
-							curScale = Math.ceil(curScale + ((newScale - curScale) * 0.6) + 0.3);
-							if (curScale < newScale) {
+							curScale = Math.ceil(curScale + ((newScale - curScale) * 0.5));
+							if (curScale < newScale && !isLagging)
 								icon.scale = curScale / 2;
-							} else {
+							else {
 								icon.scale = newScale / 2;
 								clearInterval(curTimer);
 								if (--totalIntervals === 0 && totalTimeouts === 0)
 									finishedAnimation();
 							}
 
-							//count++;
-							//totalFrames++;
-							//console.log("timeouts: "+totalTimeouts+", intervals: "+totalIntervals+", frame "+totalFrames+": mark #"+markerNumber+" @ "+count+": "+curScale+"/"+newScale);
+							totalFrames++;
 							marker.setIcon(icon);
 						};
 						
 						// Initial call to animateMarker
 						totalTimeouts++;
+						var delay = Math.floor(markerNumber / simultaneousMarkers) * datapointDelay + initialDelay;
+
+						var start = new Date().getTime();
 						setTimeout(function() {
+							var lag = new Date().getTime() - start - delay;
+							isLagging = (lag > laggingThreshold);
+							if (isLagging) animationDelay++;
 							totalTimeouts--;
 							totalIntervals++;
 							curTimer = setInterval(animateMarker, animationDelay);
-						}, Math.floor(markerNumber / 3) * datapointDelay + 100);
+						}, delay);
 
 					})();
 				} else finishedAnimation();
@@ -325,9 +333,6 @@ $(function() {
 					});
 				})();
 			}
-
-		//console.log(markers);
-
 		});
 	});
 
