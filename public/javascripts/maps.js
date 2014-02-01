@@ -215,7 +215,7 @@ $(function() {
 						setTimeout(function() {
 							marker.setIcon(icon);
 							animateMarker();
-						}, Math.floor(markerNumber / 3) * datapointDelay + 100);
+						}, Math.floor(markerNumber / 3) * datapointDelay + 50);
 					
 					})();
 				}
@@ -276,7 +276,7 @@ $(function() {
 								// If details exist then display them
 								var hiddenElement;
 								if (person.homeTown || person.highSchool || person.profCollege || person.workingAt) {
-									newItem.attr("href", "javascript:void()").addClass("hasDropdown");
+									newItem.attr("href", "#").addClass("hasDropdown");
 									hiddenElement = $("<div class='details'>").css("display", "none");
 									var html = "";
 									if (person.homeTown)
@@ -287,7 +287,8 @@ $(function() {
 										html += "<strong>College:</strong> " + person.profCollege + "<br />";
 									if (person.workingAt)
 										html += "<strong>Working At:</strong> " + person.workingAt + "<br />";
-									newItem.append(hiddenElement.html(html)).click(function() {
+									newItem.append(hiddenElement.html(html)).click(function(e) {
+										e.preventDefault();
 										hiddenElement.slideToggle(200);
 									});
 								}
@@ -302,6 +303,9 @@ $(function() {
 					});
 				})();
 			}
+
+		console.log(markers);
+
 		});
 	});
 
