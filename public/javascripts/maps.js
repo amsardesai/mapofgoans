@@ -7,6 +7,12 @@ var color3 = "#C35C00";
 var markers = [];
 var cityData = [];
 var map;
+var viewport;
+
+var currentlySelectedMarker = -1;
+
+var mobileMarkerLimit = 80;
+var viewportMobileThreshold = 600;
 
 $(function() {
 
@@ -17,11 +23,15 @@ $(function() {
 		return;
 	}
 
-	// Viewport
-	var viewport = {
-		"width": $(window).width(),
-		"height": $(window).height()
-	};
+	// Viewport object
+	var reloadViewport;
+	(reloadViewport = function() {
+		viewport = {
+			"width": $(window).width(),
+			"height": $(window).height()
+		};
+	}).call(null);
+	$(window).resize(reloadViewport);
 
 	// Styles in map
 	var styleArray = [
@@ -96,8 +106,8 @@ $(function() {
 	];
 
 	// Set initial zoom and position based on screen width
-	var initZoom = viewport.width < 600 ? 3 : 4;
-	var initLng = viewport.width < 600 ? -100 : -107;
+	var initZoom = viewport.width < viewportMobileThreshold ? 3 : 4;
+	var initLng = viewport.width < viewportMobileThreshold ? -100 : -107;
 
 	// Options for map
 	var mapOptions = {
@@ -124,7 +134,7 @@ $(function() {
 	map.setOptions({ styles: styleArray });
 
 	// Limit the zoom level
-	var minZoomLevel = viewport.width < 600 ? 2 : 3;
+	var minZoomLevel = viewport.width < viewportMobileThreshold ? 2 : 3;
 	var maxZoomLevel = 9;
 	google.maps.event.addListener(map, 'zoom_changed', function() {
 		if (map.getZoom() < minZoomLevel)
@@ -142,21 +152,38 @@ $(function() {
 
 	// Remove selection of all markers on the map
 	var dehighlightMarkers = function() {
-		for (var i = 0; i < cityData.length; i++) {
-			var icon = cityData[i].marker.getIcon();
+		if (currentlySelectedMarker > -1) {
+			var icon = cityData[currentlySelectedMarker].marker.getIcon();
 			icon.fillOpacity = 0.4;
 			icon.strokeWeight = 2;
-			cityData[i].marker.setIcon(icon);
+			cityData[currentlySelectedMarker].marker.setIcon(icon);
+			currentlySelectedMarker = -1;
 		}
 	};
 
 	// Highlight a single marker on the map
 	var highlightMarker = function(markerID) {
+		var curMarker = cityData[markerID].marker;
 		dehighlightMarkers();
-		var curIcon = cityData[markerID].marker.getIcon();
+		var curIcon = curMarker.getIcon();
 		curIcon.fillOpacity = 0.9;
 		curIcon.strokeWeight = 3;
-		cityData[markerID].marker.setIcon(curIcon);
+		curMarker.setIcon(curIcon);
+		currentlySelectedMarker = markerID;
+	};
+
+	var addTooltip = function(markerID) {
+		var curMarker = cityData[markerID].marker;
+		// Tooltip for markers
+		cityData[markerID].tooltip = new Tooltip({
+			marker: curMarker,
+			content: cityData[markerID].people.length +
+				(cityData[markerID].people.length == 1 ? " person" : " people") + " in <br />" +
+				cityData[markerID].name,
+			offsetX: -70,
+			offsetY: -(42 + curMarker.getIcon().scale),
+			cssClass: "mapTooltip"
+		});
 	};
 
 	// Add click handler to marker
@@ -225,14 +252,14 @@ $(function() {
 	};
 
 	// Add marker to map
-	var addMarker = function(markerID, initiallyHidden) {
+	var addMarker = function(markerID, initiallyHiddenCondition) {
 
 		// Calculate size of marker
 		var population = cityData[markerID].people.length;
 		var scale = getScaleFromPopulation(population);
 				
 		// Settings for marker
-		var icon = initiallyHidden ? {
+		var icon = initiallyHiddenCondition ? {
 			path: google.maps.SymbolPath.CIRCLE,
 			fillOpacity: 0,
 			strokeOpacity: 0,
@@ -251,7 +278,7 @@ $(function() {
 		// Add marker to map
 		cityData[markerID].marker = new google.maps.Marker({
 			position: new google.maps.LatLng(cityData[markerID].location.lat,cityData[markerID].location.lng),
-			map: map,
+			map: viewport.width < viewportMobileThreshold && markerID < cityData.length - mobileMarkerLimit ? null : map,
 			icon: icon
 		});
 
@@ -267,22 +294,29 @@ $(function() {
 		// Override people
 		var people = overridePeople || cityData[markerID].people;
 
-		// Set size of marker
-		var curIcon = cityData[markerID].marker.getIcon();
-		curIcon.scale = getScaleFromPopulation(people.length);
-		cityData[markerID].marker.setIcon(curIcon);
+		var curMarker = cityData[markerID].marker;
+		var scale = getScaleFromPopulation(people.length);
+		var curIcon = curMarker.getIcon();
+		if (curIcon.scale != scale) {
+			curIcon.scale = scale;
+			curMarker.setIcon(curIcon);
+		}
 
 		// In case it was removed
-		if (!cityData[markerID].marker.getMap())
-			cityData[markerID].marker.setMap(map);
+		if (!curMarker.getMap()) {
+			curMarker.setMap(map);
+		}
 
 		// Update people list
 		populateMarker(markerID, people);
+
+		// Add tooltip
+		if (!Modernizr.touch) addTooltip(markerID);
 	};
 
 	var removeMarker = function(markerID) {
-		google.maps.event.clearInstanceListeners(cityData[i].marker);
-		cityData[i].marker.setMap(null);
+		google.maps.event.clearInstanceListeners(cityData[markerID].marker);
+		cityData[markerID].marker.setMap(null);
 	};
 
 	// Remove all markers from the map
@@ -290,6 +324,15 @@ $(function() {
 		for (var i = 0; i < cityData.length; i++)
 			removeMarker(i);
 	};
+
+	$("header").click(function() {
+		var j = 0;
+		for (var i = 0; i < cityData.length; i++) {
+			if (cityData[i].marker.getMap())
+				j++;
+		}
+		console.log(j);
+	});
 
 	// Get data after map is fully loaded
 	google.maps.event.addListenerOnce(map, 'idle', function() {
@@ -304,7 +347,7 @@ $(function() {
 			var totalFrames = 0;
 
 			// Limit number of points displayed on smaller devices
-			var initialValue = viewport.width < 400 ? cityData.length - 100 : 0;
+			//var initialValue = viewport.width < 400 ? cityData.length - mobileMarkerLimit : 0;
 			
 			for (var i = 0; i < cityData.length; i++) {
 				var population = cityData[i].people.length;
@@ -313,6 +356,7 @@ $(function() {
 				// Add marker
 				var curMarker = addMarker(i, !Modernizr.touch);
 
+
 				// Load social media buttons when animation is complete
 				var finishedAnimation = function() {
 					$.ajaxSetup({ cache: true });
@@ -320,17 +364,6 @@ $(function() {
 				};
 
 				if (!Modernizr.touch) {
-
-					// Tooltip for markers
-					var tooltip = new Tooltip({
-						marker: curMarker,
-						content: population +
-							(population == 1 ? " person" : " people") + " in <br />" +
-							cityData[i].name,
-						offsetX: -70,
-						offsetY: -(42 + scale),
-						cssClass: "mapTooltip"
-					});
 
 					// Configuration for animation
 					var animationDelay = 31;
@@ -341,7 +374,7 @@ $(function() {
 
 					// Marker animating in the beginning
 					(function() {
-						var markerNumber = i,
+						var markerID = i,
 							marker = curMarker,
 							newScale = scale * 2,
 							curScale = 0,
@@ -365,8 +398,8 @@ $(function() {
 							else {
 								icon.scale = newScale / 2;
 								clearInterval(curTimer);
-								if (--totalIntervals === 0 && totalTimeouts === 0)
-									finishedAnimation();
+								if (--totalIntervals === 0 && totalTimeouts === 0) finishedAnimation();
+								addTooltip(markerID);
 							}
 
 							totalFrames++;
@@ -375,7 +408,7 @@ $(function() {
 						
 						// Initial call to animateMarker
 						totalTimeouts++;
-						var delay = Math.floor(markerNumber / simultaneousMarkers) * datapointDelay + initialDelay;
+						var delay = Math.floor(markerID / simultaneousMarkers) * datapointDelay + initialDelay;
 
 						var start = new Date().getTime();
 						setTimeout(function() {
@@ -391,7 +424,27 @@ $(function() {
 				} else finishedAnimation();
 			}
 
-			console.log(cityData);
+			google.maps.event.addListener(map, "idle", function() {
+				var limitCounter = 0;
+				var i;
+
+				// If mobile device, display the most markers possible
+				for (i = cityData.length - 1; i >= 0 && (viewport.width >= viewportMobileThreshold || limitCounter < mobileMarkerLimit); i--) {
+					var curMarker = cityData[i].marker;
+					if (!curMarker.getMap() && map.getBounds().contains(curMarker.getPosition())) {
+						updateMarker(i);
+					} else if (curMarker.getMap() && !map.getBounds().contains(curMarker.getPosition())) {
+						removeMarker(i);
+					}
+					if (curMarker.getMap() && viewport.width < viewportMobileThreshold) limitCounter++;
+				}
+
+				// Remove the rest of the markers to save memory
+				if (viewport.width < viewportMobileThreshold && limitCounter >= mobileMarkerLimit) {
+					for (var j = 0; j <= i; j++)
+						removeMarker(j);
+				}
+			});
 
 			// Clean all markers if clicked outside map
 			google.maps.event.addListener(map, "click", function() {
