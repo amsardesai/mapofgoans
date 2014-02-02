@@ -255,6 +255,7 @@ $(function() {
 			icon: icon
 		});
 
+		// Add people list to marker
 		populateMarker(markerID);
 
 		// Return created marker
@@ -279,12 +280,15 @@ $(function() {
 		populateMarker(markerID, people);
 	};
 
+	var removeMarker = function(markerID) {
+		google.maps.event.clearInstanceListeners(cityData[i].marker);
+		cityData[i].marker.setMap(null);
+	};
+
 	// Remove all markers from the map
 	var removeAllMarkers = function() {
-		for (var i = 0; i < cityData.length; i++) {
-			google.maps.event.clearInstanceListeners(cityData[i].marker);
-			cityData[i].marker.setMap(null);
-		}
+		for (var i = 0; i < cityData.length; i++)
+			removeMarker(i);
 	};
 
 	// Get data after map is fully loaded
