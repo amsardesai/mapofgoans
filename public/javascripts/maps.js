@@ -11,7 +11,7 @@ var viewport;
 
 var currentlySelectedMarker = -1;
 
-var mobileMarkerLimit = 80;
+var mobileMarkerLimit = 60;
 var viewportMobileThreshold = 600;
 
 $(function() {
@@ -172,7 +172,8 @@ $(function() {
 		currentlySelectedMarker = markerID;
 	};
 
-	var addTooltip = function(markerID) {
+	// Add the black tooltip to a marker
+	var addTooltip = function(markerID, scale) {
 		var curMarker = cityData[markerID].marker;
 		// Tooltip for markers
 		cityData[markerID].tooltip = new Tooltip({
@@ -181,7 +182,7 @@ $(function() {
 				(cityData[markerID].people.length == 1 ? " person" : " people") + " in <br />" +
 				cityData[markerID].name,
 			offsetX: -70,
-			offsetY: -(42 + curMarker.getIcon().scale),
+			offsetY: -(42 + scale),
 			cssClass: "mapTooltip"
 		});
 	};
@@ -278,7 +279,7 @@ $(function() {
 		// Add marker to map
 		cityData[markerID].marker = new google.maps.Marker({
 			position: new google.maps.LatLng(cityData[markerID].location.lat,cityData[markerID].location.lng),
-			map: viewport.width < viewportMobileThreshold && markerID < cityData.length - mobileMarkerLimit ? null : map,
+			map: Modernizr.touch && markerID < cityData.length - mobileMarkerLimit ? null : map,
 			icon: icon
 		});
 
@@ -311,9 +312,10 @@ $(function() {
 		populateMarker(markerID, people);
 
 		// Add tooltip
-		if (!Modernizr.touch) addTooltip(markerID);
+		if (!Modernizr.touch) addTooltip(markerID, scale);
 	};
 
+	// Remove one marker
 	var removeMarker = function(markerID) {
 		google.maps.event.clearInstanceListeners(cityData[markerID].marker);
 		cityData[markerID].marker.setMap(null);
@@ -325,15 +327,6 @@ $(function() {
 			removeMarker(i);
 	};
 
-	$("header").click(function() {
-		var j = 0;
-		for (var i = 0; i < cityData.length; i++) {
-			if (cityData[i].marker.getMap())
-				j++;
-		}
-		console.log(j);
-	});
-
 	// Get data after map is fully loaded
 	google.maps.event.addListenerOnce(map, 'idle', function() {
 
@@ -344,10 +337,6 @@ $(function() {
 			// Measure how many timeouts and intervals are set
 			var totalTimeouts = 0;
 			var totalIntervals = 0;
-			var totalFrames = 0;
-
-			// Limit number of points displayed on smaller devices
-			//var initialValue = viewport.width < 400 ? cityData.length - mobileMarkerLimit : 0;
 			
 			for (var i = 0; i < cityData.length; i++) {
 				var population = cityData[i].people.length;
@@ -399,10 +388,9 @@ $(function() {
 								icon.scale = newScale / 2;
 								clearInterval(curTimer);
 								if (--totalIntervals === 0 && totalTimeouts === 0) finishedAnimation();
-								addTooltip(markerID);
+								addTooltip(markerID, newScale / 2);
 							}
 
-							totalFrames++;
 							marker.setIcon(icon);
 						};
 						
@@ -425,22 +413,21 @@ $(function() {
 			}
 
 			google.maps.event.addListener(map, "idle", function() {
-				var limitCounter = 0;
-				var i;
+				var i, limitCounter = 0;
 
 				// If mobile device, display the most markers possible
-				for (i = cityData.length - 1; i >= 0 && (viewport.width >= viewportMobileThreshold || limitCounter < mobileMarkerLimit); i--) {
+				for (i = cityData.length - 1; i >= 0 && !(Modernizr.touch && limitCounter >= mobileMarkerLimit); i--) {
 					var curMarker = cityData[i].marker;
 					if (!curMarker.getMap() && map.getBounds().contains(curMarker.getPosition())) {
 						updateMarker(i);
 					} else if (curMarker.getMap() && !map.getBounds().contains(curMarker.getPosition())) {
 						removeMarker(i);
 					}
-					if (curMarker.getMap() && viewport.width < viewportMobileThreshold) limitCounter++;
+					if (curMarker.getMap() && Modernizr.touch) limitCounter++;
 				}
 
 				// Remove the rest of the markers to save memory
-				if (viewport.width < viewportMobileThreshold && limitCounter >= mobileMarkerLimit) {
+				if (Modernizr.touch && limitCounter >= mobileMarkerLimit) {
 					for (var j = 0; j <= i; j++)
 						removeMarker(j);
 				}
