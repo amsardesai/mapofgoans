@@ -164,6 +164,8 @@ $(function() {
 
 	// Unselect markers completely (changing labels as well)
 	var unselectMarkers = function() {
+
+		
 		$(".cityInfo").empty().hide();
 		$(".pointerInfo").hide();
 		$(".tooltip").show();
@@ -337,45 +339,41 @@ $(function() {
 			removeMarker(i);
 	};
 
-	var reloadMarkers = function() {
+	var reloadMarkers = function(reloadSearch) {
 		var i, limitCounter = 0;
+		reloadSearch = typeof reloadSearch !== 'undefined';
 
 		// If mobile device, display the most markers possible
 		for (i = cityData.length - 1; i >= 0; i--) {
-			var curCity = cityData[i];
-			var curMarker = curCity.marker;
 
-			var weAreSearching = (searchQuery !== ""),
-				isInSearchResult = false,
-				searchResults = false;
-			if (weAreSearching) {
-				var people = curCity.people;
-				searchResults = [];
+			var isInSearchResult = false;
+			if (reloadSearch) {
+				var people = cityData[i].people,
+					searchResults = [];
 				for (var j = 0; j < people.length; j++)
 					if (people[j].name.toLowerCase().indexOf(searchQuery.toLowerCase()) > -1) {
 						isInSearchResult = true;
 						searchResults.push(people[j]);
 					}
+				cityData[i].searchResults = (searchQuery === "") ? false : searchResults;
 			}
 
-			var isInMemory = curMarker.getMap();
-			var isInBounds = map.getBounds().contains(curMarker.getPosition());
+			var isInMemory = cityData[i].marker.getMap();
+			var isInBounds = map.getBounds().contains(cityData[i].marker.getPosition());
 
 			// If we are searching and the city is in the search result OR we are not searching and it's not on the map AND it is in the map bounds
-			if (((weAreSearching && isInSearchResult) || (!weAreSearching && !isInMemory)) && isInBounds) {
-				updateMarker(i, searchResults);
-			} else if ((isInMemory && !isInBounds) || (weAreSearching && !isInSearchResult && isInMemory && isInBounds)) {
+			if (((reloadSearch && isInSearchResult) || (!reloadSearch && !isInMemory)) && isInBounds)
+				updateMarker(i, cityData[i].searchResults);
+			else if ((isInMemory && !isInBounds) || (reloadSearch && !isInSearchResult && isInMemory && isInBounds))
 				removeMarker(i);
-			}
-			if (Modernizr.touch && curMarker.getMap() && ++limitCounter > mobileMarkerLimit)
+			
+			if (Modernizr.touch && isInMemory && ++limitCounter > mobileMarkerLimit)
 				break;
 		}
 
 		// Remove the rest of the markers to save memory
-		if (Modernizr.touch && limitCounter >= mobileMarkerLimit) {
-			for (var k = 0; k <= i; k++)
-				removeMarker(k);
-		}
+		if (Modernizr.touch && limitCounter >= mobileMarkerLimit)
+			for (var k = 0; k <= i; k++) removeMarker(k);
 	};
 
 	// Get data after map is fully loaded
@@ -402,9 +400,11 @@ $(function() {
 					$.getScript("/javascripts/social.js");
 					google.maps.event.addListener(map, "idle", reloadMarkers);
 					$(".search").bind("propertychange keyup input paste", function() {
-						searchQuery = $(".search").val();
-						unselectMarkers();
-						reloadMarkers();
+						if (searchQuery != $(".search").val()) {
+							searchQuery = $(".search").val();
+							unselectMarkers();
+							reloadMarkers(true);
+						}
 					});
 					searchQuery = $(".search").val();
 					if (searchQuery) reloadMarkers();
