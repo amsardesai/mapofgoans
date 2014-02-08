@@ -4,7 +4,8 @@ html
 		title Map of Goans
 		meta(name='viewport',content='width=device-width, minimum-scale=1.0, maximum-scale=1.0')
 		link(rel='stylesheet', href='/stylesheets/style.css')
-		script(type='text/javascript', src='//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js')
+		script(type='text/javascript', src='//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js')
+		//-script(type='text/javascript', src='//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js')
 		script(type='text/javascript', src='http://maps.googleapis.com/maps/api/js?key=AIzaSyByK4l8jyTfjhjacWWkfQZZ32-PF417VWo&sensor=false')
 		script(type='text/javascript', src='/javascripts/modernizr.min.js')
 		script(type='text/javascript', src='/javascripts/tooltip.js')
@@ -17,13 +18,10 @@ html
 		section
 			.tooltip 
 				p Click on a point on the map to get more info about Goans living at that location.
-				p
-					input.search(type="text",placeholder="Search all Goans...")
-				p.searchCount  
+				input.search(type="text",placeholder="Search all Goans...")
 			.pointerInfo 
 				.searchInfo
 				.peopleCount
-				| in 
 				span.city
 			.cityInfo
 		footer 

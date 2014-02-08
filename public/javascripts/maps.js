@@ -7,7 +7,7 @@ var color3 = "#C35C00";
 var markers = [];
 var cityData = [];
 var map;
-var searchQuery = "", searchCount;
+var searchQuery = "", personSearchCount, allSearchResults = [], searchCities = 0;
 var currentlySelectedMarker = -1;
 var mobileMarkerLimit = 60;
 var viewportMobileThreshold = 600;
@@ -148,6 +148,46 @@ $(function() {
 		return Math.round(10 * Math.pow(population / 5, 0.5));
 	};
 
+	// Create a person jQuery object given a person object
+	var createItemFromPerson = function(person, includeLocation) {
+
+		// Use a instead of div on mobile so they can see highlight while clicking
+		var newItem = Modernizr.touch ? $("<a>") : $("<div>");
+		newItem.addClass("person");
+
+		var city = $("<div class='name'>").text(person.name);
+		newItem.append(city);
+		
+		if (includeLocation) {
+			city.addClass("smallerName");
+			newItem.append($("<div class='location'>").text(person.location));
+		}
+		
+		// If details exist then display them
+		var hiddenElement;
+		if (person.homeTown || person.highSchool || person.profCollege || person.workingAt) {
+			newItem.attr("href", "#").addClass("hasDropdown");
+			hiddenElement = $("<ul>").css("display", "none");
+
+			if (person.homeTown)
+				hiddenElement.append($("<li>").html("<strong>Home Town:</strong> " + person.homeTown + "<br />"));
+			if (person.highSchool)
+				hiddenElement.append($("<li>").html("<strong>High School:</strong> " + person.highSchool + "<br />"));
+			if (person.profCollege)
+				hiddenElement.append($("<li>").html("<strong>College:</strong> " + person.profCollege + "<br />"));
+			if (person.workingAt)
+				hiddenElement.append($("<li>").html("<strong>Working At:</strong> " + person.workingAt + "<br />"));
+
+			newItem.append(hiddenElement).click(function(e) {
+				e.preventDefault();
+				hiddenElement.slideToggle(200);
+			});
+		}
+
+		return newItem;
+	};
+
+
 	// Remove selection of all markers on the map
 	var dehighlightMarkers = function() {
 		if (currentlySelectedMarker > -1) {
@@ -161,13 +201,29 @@ $(function() {
 
 	// Unselect markers completely (changing labels as well)
 	var unselectMarkers = function() {
-		if (searchQuery === "")
-			$(".searchCount").empty();
-		else
-			$(".searchCount").text(searchCount + " " + (searchCount == 1 ? "person" : "people") + " found");
-		
 		$(".cityInfo").empty().hide();
 		$(".pointerInfo").hide();
+
+		if (searchQuery !== "") {
+			if (personSearchCount > 0) {
+				$(".searchInfo").empty();
+				$(".peopleCount").text(allSearchResults.length + (allSearchResults.length == 1 ? " Goan found" : " Goans found"));
+				$(".city").text("in " + searchCities + (searchCities == 1 ? " city" : " cities"));
+				$(".pointerInfo").show();
+				var cityInfo = $(".cityInfo");
+				cityInfo.empty();
+				for (var k = 0; k < allSearchResults.length; k++)
+					cityInfo.append(createItemFromPerson(allSearchResults[k], true));
+				cityInfo.show();
+			} else {
+				$(".searchInfo").empty();
+				$(".peopleCount").text("No Goans found");
+				$(".city").empty();
+				$(".pointerInfo").show();
+				$(".cityInfo").empty().show();
+			}
+		}
+
 		$(".tooltip").show();
 		dehighlightMarkers();
 	};
@@ -218,55 +274,42 @@ $(function() {
 			// Sort by last name
 			var people = overridePeople || curCity.people;
 			people.sort(function(a, b) {
-				return a.lastName < b.lastName ? -1 : a.lastName > b.lastName ? 1 : 0;
+				return a.lastName < b.lastName ? -1 :
+					a.lastName > b.lastName ? 1 :
+					a.name < b.name ? -1 :
+					a.name > b.name ? 1 : 0;
 			});
 
 			// Manipulate UI
 			$(".tooltip").hide();
-			$(".pointerInfo").show();
-			$(".city").text(curCity.name);
 			$(".searchInfo").text(searchQuery ? "Searching for \"" + searchQuery + "\"" : "");
 			$(".peopleCount").text(people.length + " Goan" + (people.length == 1 ? "" : "s"));
-			$(".cityInfo").empty();
+			$(".city").text("in " + curCity.name);
+			$(".pointerInfo").show();
+
+			var cityInfo = $(".cityInfo");
+			cityInfo.empty();
 			
 			// Loop all people in city
 			for (var k = 0; k < people.length; k++) {
-				(function() {
-					var person = people[k];
+				cityInfo.append(createItemFromPerson(people[k]));
+			}
 
-					// Use a instead of div on mobile so they can see highlight while clicking
-					var newItem = Modernizr.touch ? $("<a>") : $("<div>");
-					newItem.addClass("person");
-					newItem.append($("<div class='name'>").text(person.name));
-
-					// If details exist then display them
-					var hiddenElement;
-					if (person.homeTown || person.highSchool || person.profCollege || person.workingAt) {
-						newItem.attr("href", "#").addClass("hasDropdown");
-						hiddenElement = $("<ul>").css("display", "none");
-
-						if (person.homeTown)
-							hiddenElement.append($("<li>").html("<strong>Home Town:</strong> " + person.homeTown + "<br />"));
-						if (person.highSchool)
-							hiddenElement.append($("<li>").html("<strong>High School:</strong> " + person.highSchool + "<br />"));
-						if (person.profCollege)
-							hiddenElement.append($("<li>").html("<strong>College:</strong> " + person.profCollege + "<br />"));
-						if (person.workingAt)
-							hiddenElement.append($("<li>").html("<strong>Working At:</strong> " + person.workingAt + "<br />"));
-
-						newItem.append(hiddenElement).click(function(e) {
-							e.preventDefault();
-							hiddenElement.slideToggle(200);
-						});
-					}
-
-					// Push person to sidebar
-					$(".cityInfo").append(newItem);
-				})();
+			if (searchQuery !== "") {
+				var clickToReturn = Modernizr.touch ? $("<a>") : $("<div>");
+				clickToReturn
+					.attr("href", "#")
+					.addClass("returnToSearch")
+					.text("Click here to return to search")
+					.click(function(e) {
+						e.preventDefault();
+						unselectMarkers();
+					});
+				cityInfo.append(clickToReturn);
 			}
 
 			// Show sidebar if not already shown
-			$(".cityInfo").show();
+			cityInfo.show();
 		});
 	};
 
@@ -358,8 +401,12 @@ $(function() {
 
 		var tempSearchCount = 0;
 		var weAreSearching = (searchQuery !== "");
-
 		var searchArray = searchQuery.split(/\s+/);
+
+		if (reloadSearch) {
+			allSearchResults = [];
+			searchCities = 0;
+		}
 
 		// If mobile device, display the most markers possible
 		for (i = cityData.length - 1; i >= 0; i--) {
@@ -374,7 +421,11 @@ $(function() {
 						for (var l = 0; l < searchArray.length; l++) {
 							if (personName.indexOf(searchArray[l]) == -1) isFound = false;
 						}
-						if (isFound) searchResults.push(people[j]);
+						if (isFound) {
+							searchResults.push(people[j]);
+							people[j].location = cityData[i].name;
+							allSearchResults.push(people[j]);
+						}
 					}
 					tempSearchCount += searchResults.length;
 				}
@@ -384,6 +435,8 @@ $(function() {
 			var isInResult = cityData[i].searchResults.length !== 0;
 			var isInMap = cityData[i].marker.getMap() !== null;
 			var isInBounds = map.getBounds().contains(cityData[i].marker.getPosition());
+
+			if (isInResult) searchCities++;
 
 			// If we are searching and the city is in the search result OR we are not searching and it's not on the map AND it is in the map bounds
 			if (((weAreSearching && isInResult && (reloadSearch || !isInMap)) || (!weAreSearching && (reloadSearch || !isInMap))) && isInBounds) {
@@ -396,7 +449,16 @@ $(function() {
 				break;
 		}
 
-		if (reloadSearch) searchCount = tempSearchCount;
+		// Sort search results
+		if (reloadSearch) {
+			personSearchCount = tempSearchCount;
+			allSearchResults.sort(function(a, b) {
+				return a.lastName < b.lastName ? -1 :
+					a.lastName > b.lastName ? 1 :
+					a.name < b.name ? -1 :
+					a.name > b.name ? 1 : 0;
+			});
+		}
 
 		// Remove the rest of the markers to save memory
 		if (Modernizr.touch && limitCounter >= mobileMarkerLimit)

@@ -99,36 +99,32 @@ section {
 	background-color: @color-2;
 	.tooltip {
 		font-size: 110%;
-		padding: 0 20px;
-		margin: 15px 0;
+		margin-bottom: 15px;
 		p {
+			display: inline-block;
+			width: 234px;
+			padding: 0 20px;
 			margin: 15px 0 0 0;
-			.search {
-				width: 234px;
-				padding: 5px 10px;
-				border: 3px solid @color-3;
-				margin: 10px 0;
-				border-radius: 0;
-				font: inherit;
-			}
-			&.searchCount {
-				font-size: 80%;
-				text-align: center;
-				margin-top: 0;
-			}
+		}
+		.search {
+			width: 234px;
+			padding: 5px 10px;
+			margin: 15px 20px 0 20px;
+			border: 3px solid lighten(@color-3, 5%);
+			font: inherit;
 		}
 	}
 	.pointerInfo {
 		font-size: 85%;
 		display: none;
-		padding: 7px;
+		padding: 0 0 10px 0;
+		margin-top: 10px;
 		text-align: center;
 		border-bottom: 3px solid lighten(@color-3, 5%);
 		.peopleCount {
 			font-size: 160%;
 			font-weight: bold;
 		}
-
 	}
 	.cityInfo {
 		overflow-y: auto;
@@ -142,13 +138,30 @@ section {
 			text-decoration: none;
 			color: #fff;
 			position: relative;
+			&:nth-child(odd) {
+				background-color: lighten(@color-2, 9%);
+			}
+			&:nth-child(even) {
+				background-color: lighten(@color-2, 15%);
+			}
+			.name {
+				padding: 7px 15px;
+				font-size: 100%;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				&.smallerName {
+					padding-bottom: 0;
+				}
+			}
+			.location {
+				font-size: 75%;
+				padding: 0 15px 10px 20px;
+			}
 			&.hasDropdown {
 				cursor: pointer;
 				.name {
-					white-space: nowrap;
-					overflow: hidden;
-					text-overflow: ellipsis;
-					padding: 7px 80px 7px 15px;
+					padding-right: 80px;
 				}
 				&:after {
 					content: "[click for more]";
@@ -158,15 +171,6 @@ section {
 					font-size: 65%;
 					padding: 10px;
 				}
-			}
-			&:nth-child(odd) {
-				background-color: lighten(@color-2, 9%);
-			}
-			&:nth-child(even) {
-				background-color: lighten(@color-2, 15%);
-			}
-			.name {
-				padding: 7px 15px;
 			}
 			ul {
 				border-top: 2px solid lighten(@color-3, 6%);
@@ -187,6 +191,14 @@ section {
 
 				}
 			}
+		}
+		.returnToSearch {
+			padding: 5px 0 0 0;
+			font-size: 90%;
+			text-decoration: none;
+			text-align: center;
+			cursor: pointer;
+
 		}
 		&:after {
 			content: "";
@@ -252,15 +264,20 @@ footer {
 @media screen and (max-width: 960px) {
 	section {
 		width: 230px;
-		.tooltip p .search {
-			width: 163px;
+		.tooltip {
+			p {
+				width: 190px;
+			}
+			.search {
+				width: 164px;
+			}
 		}
 		.cityInfo .person {
-			&.hasDropdown .name {
-				padding: 7px 80px 7px 10px; 
-			}
 			.name {
-				padding: 7px 10px;
+				padding-left: 10px;
+			}
+			.location {
+				padding-left: 15px;
 			}
 			ul {
 				margin: 0 10px 0 15px;
