@@ -24,9 +24,12 @@ function Tooltip(options) {
     // leave it null for now.
     this.div_ = null;
 
-    //Explicitly call setMap on this overlay
+    // Explicitly call setMap on this overlay
     this.setMap(this.map_);
-	var me = this;
+
+    // Fixes scoping bug inside listener
+    var me = this;
+
 	// Show tooltip on mouseover event.
 	google.maps.event.addListener(me.marker_, 'mouseover', function() {
 		me.show();
@@ -44,15 +47,12 @@ Tooltip.prototype = new google.maps.OverlayView();
 Tooltip.prototype.onAdd = function() {
 
     // Create the DIV and set some basic attributes.
-    var div = document.createElement('DIV');
+    var div = $("<div>").css({
+        position: "absolute",
+        display: "none"
+    }).html(this.content_);
 
-	$(div).css({position: "absolute", display: "none"});
-
-	if(this.cssClass_)
-		div.className += " "+this.cssClass_;
-
-    //Attach content to the DIV.
-    div.innerHTML = this.content_;
+	if(this.cssClass_) div.addClass(this.cssClass_);
 
     // Set the overlay's div_ property to this DIV
     this.div_ = div;
@@ -60,9 +60,8 @@ Tooltip.prototype.onAdd = function() {
     // We add an overlay to a map via one of the map's panes.
     // We'll add this overlay to the floatPane pane.
     var panes = this.getPanes();
-    panes.floatPane.appendChild(this.div_);
+    panes.floatPane.appendChild(this.div_.get(0));
 
-    
     this.opacity_ = $(this.div_).css("opacity");
 	
 };
@@ -81,22 +80,23 @@ Tooltip.prototype.draw = function() {
     var ne = overlayProjection.fromLatLngToDivPixel(this.marker_.getPosition());
 
     // Position the DIV.
-    var div = this.div_;
-    div.style.left = (ne.x + this.offsetX_) + 'px';
-    div.style.top = (ne.y + this.offsetY_) + 'px';
+    this.div_.css({
+        left: ne.x + this.offsetX_,
+        top: ne.y + this.offsetY_
+    });
     
-    this.curTop_ = parseInt(div.style.top, 10);
+    this.curTop_ = ne.y + this.offsetY_;
 };
 
 // We here implement onRemove
 Tooltip.prototype.onRemove = function() {
-    this.div_.parentNode.removeChild(this.div_);
+    this.div_.remove();
+    this.div_ = null;
 };
 
-// Note that the visibility property must be a string enclosed in quotes
 Tooltip.prototype.show = function() {
     if (this.div_) {
-        $(this.div_)
+        this.div_
             .stop()
             .css({
                 display: "inline-block",
@@ -112,7 +112,7 @@ Tooltip.prototype.show = function() {
 
 Tooltip.prototype.hide = function() {
     if (this.div_) {
-        $(this.div_)
+        this.div_
             .stop()
             .animate({
                 opacity: 0,
