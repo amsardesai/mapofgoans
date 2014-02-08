@@ -7,11 +7,8 @@ var color3 = "#C35C00";
 var markers = [];
 var cityData = [];
 var map;
-var viewport;
 var searchQuery = "", searchCount;
-
 var currentlySelectedMarker = -1;
-
 var mobileMarkerLimit = 60;
 var viewportMobileThreshold = 600;
 
@@ -25,13 +22,13 @@ $(function() {
 	}
 
 	// Viewport object
-	var reloadViewport;
+	var reloadViewport, viewport;
 	(reloadViewport = function() {
 		viewport = {
 			"width": $(window).width(),
 			"height": $(window).height()
 		};
-	}).call(null);
+	}).call(this);
 	$(window).resize(reloadViewport);
 
 	// Styles in map
@@ -355,24 +352,30 @@ $(function() {
 	};
 
 	var reloadMarkers = function(reloadSearch) {
-		var d = new Date().getTime();
+		//var d = new Date().getTime();
 		var i, limitCounter = 0;
 		reloadSearch = typeof reloadSearch !== 'undefined';
 
 		var tempSearchCount = 0;
+		var weAreSearching = (searchQuery !== "");
+
+		var searchArray = searchQuery.split(/\s+/);
 
 		// If mobile device, display the most markers possible
 		for (i = cityData.length - 1; i >= 0; i--) {
 
-			var weAreSearching = (searchQuery !== "");
 			if (reloadSearch) {
 				var searchResults = [];
 				if (weAreSearching) {
 					var people = cityData[i].people;
-					for (var j = 0; j < people.length; j++)
-						if (people[j].name.toLowerCase().indexOf(searchQuery) > -1) {
-							searchResults.push(people[j]);
+					for (var j = 0; j < people.length; j++) {
+						var isFound = true;
+						var personName = people[j].name.toLowerCase();
+						for (var l = 0; l < searchArray.length; l++) {
+							if (personName.indexOf(searchArray[l]) == -1) isFound = false;
 						}
+						if (isFound) searchResults.push(people[j]);
+					}
 					tempSearchCount += searchResults.length;
 				}
 				cityData[i].searchResults = searchResults;
@@ -398,6 +401,8 @@ $(function() {
 		// Remove the rest of the markers to save memory
 		if (Modernizr.touch && limitCounter >= mobileMarkerLimit)
 			for (var k = 0; k <= i; k++) removeMarker(k);
+
+		//console.log("reloading took " + (new Date().getTime() - d) + " ms");
 	};
 
 	// Get data after map is fully loaded
@@ -439,7 +444,7 @@ $(function() {
 								}, 300);
 							})();
 						}
-					}).call(null);
+					}).call(this);
 					$(".search").bind("propertychange keyup input paste", justTyped);
 				};
 
