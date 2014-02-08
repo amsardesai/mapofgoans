@@ -8,7 +8,7 @@ var markers = [];
 var cityData = [];
 var map;
 var viewport;
-var searchQuery;
+var searchQuery = "", searchCount;
 
 var currentlySelectedMarker = -1;
 
@@ -164,7 +164,10 @@ $(function() {
 
 	// Unselect markers completely (changing labels as well)
 	var unselectMarkers = function() {
-
+		if (searchQuery === "")
+			$(".searchCount").empty();
+		else
+			$(".searchCount").text(searchCount + " " + (searchCount == 1 ? "person" : "people") + " found");
 		
 		$(".cityInfo").empty().hide();
 		$(".pointerInfo").hide();
@@ -174,6 +177,7 @@ $(function() {
 
 	// Highlight a single marker on the map
 	var highlightMarker = function(markerID) {
+		
 		var curMarker = cityData[markerID].marker;
 		dehighlightMarkers();
 		var curIcon = curMarker.getIcon();
@@ -181,18 +185,22 @@ $(function() {
 		curIcon.strokeWeight = 3;
 		curMarker.setIcon(curIcon);
 		currentlySelectedMarker = markerID;
+
 	};
 
 	// Add the black tooltip to a marker
-	var addTooltip = function(markerID, scale, overridePeople) {
+	var updateTooltip = function(markerID, scale, overridePeople) {
 		var people = overridePeople || cityData[markerID].people;
 		var curMarker = cityData[markerID].marker;
+		var content = people.length + (people.length == 1 ? " person" : " people") + " in <br />" + cityData[markerID].name;
+		
 		// Tooltip for markers
+		if (cityData[markerID].tooltip)
+			cityData[markerID].tooltip.setMap(null);
+
 		cityData[markerID].tooltip = new Tooltip({
 			marker: curMarker,
-			content: people.length +
-				(people.length == 1 ? " person" : " people") + " in <br />" +
-				cityData[markerID].name,
+			content: content,
 			offsetX: -70,
 			offsetY: -(42 + scale),
 			cssClass: "mapTooltip"
@@ -220,7 +228,8 @@ $(function() {
 			$(".tooltip").hide();
 			$(".pointerInfo").show();
 			$(".city").text(curCity.name);
-			$(".peopleCount").text(people.length + " Goan" + (people.length == 1 ? "" : "s") + (searchQuery ? " containing \"" + searchQuery + "\"" : ""));
+			$(".searchInfo").text(searchQuery ? "Searching for \"" + searchQuery + "\"" : "");
+			$(".peopleCount").text(people.length + " Goan" + (people.length == 1 ? "" : "s"));
 			$(".cityInfo").empty();
 			
 			// Loop all people in city
@@ -295,6 +304,9 @@ $(function() {
 			icon: icon
 		});
 
+		// Add null tooltip
+		cityData[markerID].tooltip = null;
+
 		// Add people list to marker
 		populateMarker(markerID);
 
@@ -305,7 +317,8 @@ $(function() {
 	// Edit size of marker
 	var updateMarker = function(markerID, overridePeople) {
 		// Override people
-		var people = overridePeople || cityData[markerID].people;
+		var people = overridePeople;
+		if (people.length === 0) people = cityData[markerID].people;
 		var curMarker = cityData[markerID].marker;
 		var scale = getScaleFromPopulation(people.length);
 		var curIcon = curMarker.getIcon();
@@ -324,13 +337,15 @@ $(function() {
 		populateMarker(markerID, people);
 
 		// Add tooltip
-		if (!Modernizr.touch) addTooltip(markerID, scale, people);
+		if (!Modernizr.touch) updateTooltip(markerID, scale, people);
 	};
 
 	// Remove one marker
 	var removeMarker = function(markerID) {
 		google.maps.event.clearInstanceListeners(cityData[markerID].marker);
 		cityData[markerID].marker.setMap(null);
+		cityData[markerID].tooltip.setMap(null);
+		cityData[markerID].tooltip = null;
 	};
 
 	// Remove all markers from the map
@@ -340,36 +355,45 @@ $(function() {
 	};
 
 	var reloadMarkers = function(reloadSearch) {
+		var d = new Date().getTime();
 		var i, limitCounter = 0;
 		reloadSearch = typeof reloadSearch !== 'undefined';
+
+		var tempSearchCount = 0;
 
 		// If mobile device, display the most markers possible
 		for (i = cityData.length - 1; i >= 0; i--) {
 
-			var isInSearchResult = false;
+			var weAreSearching = (searchQuery !== "");
 			if (reloadSearch) {
-				var people = cityData[i].people,
-					searchResults = [];
-				for (var j = 0; j < people.length; j++)
-					if (people[j].name.toLowerCase().indexOf(searchQuery.toLowerCase()) > -1) {
-						isInSearchResult = true;
-						searchResults.push(people[j]);
-					}
-				cityData[i].searchResults = (searchQuery === "") ? false : searchResults;
+				var searchResults = [];
+				if (weAreSearching) {
+					var people = cityData[i].people;
+					for (var j = 0; j < people.length; j++)
+						if (people[j].name.toLowerCase().indexOf(searchQuery) > -1) {
+							searchResults.push(people[j]);
+						}
+					tempSearchCount += searchResults.length;
+				}
+				cityData[i].searchResults = searchResults;
 			}
 
-			var isInMemory = cityData[i].marker.getMap();
+			var isInResult = cityData[i].searchResults.length !== 0;
+			var isInMap = cityData[i].marker.getMap() !== null;
 			var isInBounds = map.getBounds().contains(cityData[i].marker.getPosition());
 
 			// If we are searching and the city is in the search result OR we are not searching and it's not on the map AND it is in the map bounds
-			if (((reloadSearch && isInSearchResult) || (!reloadSearch && !isInMemory)) && isInBounds)
+			if (((weAreSearching && isInResult && (reloadSearch || !isInMap)) || (!weAreSearching && (reloadSearch || !isInMap))) && isInBounds) {
 				updateMarker(i, cityData[i].searchResults);
-			else if ((isInMemory && !isInBounds) || (reloadSearch && !isInSearchResult && isInMemory && isInBounds))
+			} else if ((isInMap && !isInBounds) || (weAreSearching && !isInResult && isInMap && isInBounds)) {
 				removeMarker(i);
+			}
 			
-			if (Modernizr.touch && isInMemory && ++limitCounter > mobileMarkerLimit)
+			if (Modernizr.touch && isInMap && ++limitCounter > mobileMarkerLimit)
 				break;
 		}
+
+		if (reloadSearch) searchCount = tempSearchCount;
 
 		// Remove the rest of the markers to save memory
 		if (Modernizr.touch && limitCounter >= mobileMarkerLimit)
@@ -394,20 +418,29 @@ $(function() {
 				// Add marker
 				var curMarker = addMarker(i, !Modernizr.touch);
 
+				cityData[i].searchResults = [];
+
 				// Load social media buttons when animation is complete
 				var finishedAnimation = function() {
 					$.ajaxSetup({ cache: true });
 					$.getScript("/javascripts/social.js");
 					google.maps.event.addListener(map, "idle", reloadMarkers);
-					$(".search").bind("propertychange keyup input paste", function() {
-						if (searchQuery != $(".search").val()) {
-							searchQuery = $(".search").val();
-							unselectMarkers();
-							reloadMarkers(true);
+					var justTyped;
+					var timer = 0;
+					(justTyped = function() {
+						var enteredQuery = $.trim($(".search").val().toLowerCase());
+						if (searchQuery != enteredQuery) {
+							searchQuery = enteredQuery;
+							(function() {
+								clearTimeout(timer);
+								timer = setTimeout(function() {
+									reloadMarkers(true);
+									unselectMarkers();
+								}, 300);
+							})();
 						}
-					});
-					searchQuery = $(".search").val();
-					if (searchQuery) reloadMarkers();
+					}).call(null);
+					$(".search").bind("propertychange keyup input paste", justTyped);
 				};
 
 				if (!Modernizr.touch) {
@@ -446,7 +479,7 @@ $(function() {
 								icon.scale = newScale / 2;
 								clearInterval(curTimer);
 								if (--totalIntervals === 0 && totalTimeouts === 0) finishedAnimation();
-								addTooltip(markerID, newScale / 2);
+								updateTooltip(markerID, newScale / 2);
 							}
 
 							marker.setIcon(icon);

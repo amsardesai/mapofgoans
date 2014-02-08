@@ -62,12 +62,11 @@ header {
 	.mapTooltip {
 		width: 130px;
 		background-color: #000;
-		opacity: 0.75;
+		opacity: 1;
 		color: #fff;
 		padding: 5px;
 		text-align: center;
 		border-radius: 5px;
-		position: relative;
 		font-size: 11px;
 		line-height: 1.2;
 		white-space: nowrap;
@@ -100,8 +99,24 @@ section {
 	background-color: @color-2;
 	.tooltip {
 		font-size: 110%;
-		text-align: center;
-		padding: 7px 15px;
+		padding: 0 20px;
+		margin: 15px 0;
+		p {
+			margin: 15px 0 0 0;
+			.search {
+				width: 234px;
+				padding: 5px 10px;
+				border: 3px solid @color-3;
+				margin: 10px 0;
+				border-radius: 0;
+				font: inherit;
+			}
+			&.searchCount {
+				font-size: 80%;
+				text-align: center;
+				margin-top: 0;
+			}
+		}
 	}
 	.pointerInfo {
 		font-size: 85%;
@@ -158,8 +173,8 @@ section {
 				padding: 7px 0 9px 0;
 				margin: 0 15px 0 20px;
 				font-size: 80%;
-				padding-left: 1em;  
-				text-indent: -1em; 
+				padding-left: 1em;
+				text-indent: -1em;
 				li {
 					&:before {
 						content: "-";
@@ -237,6 +252,9 @@ footer {
 @media screen and (max-width: 960px) {
 	section {
 		width: 230px;
+		.tooltip p .search {
+			width: 163px;
+		}
 		.cityInfo .person {
 			&.hasDropdown .name {
 				padding: 7px 80px 7px 10px; 
