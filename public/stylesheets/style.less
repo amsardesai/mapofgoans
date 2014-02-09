@@ -21,7 +21,7 @@ table { border-collapse: collapse; border-spacing: 0; }
 @header-font-size: 200%;
 @header-color: @color-2;
 @header-height: 60px;
-@header-font-offset: 0px;
+@header-font-offset: -1px;
 
 html {
 	height: 100%;
@@ -51,8 +51,17 @@ header {
 	border-top: 5px solid @color-3;
 	font-family: @header-font;
 	font-size: @header-font-size;
-	padding: (10px + @header-font-offset) 10px (10px - @header-font-offset) 10px;
+	padding: (10px + @header-font-offset) 0 (10px - @header-font-offset) 0;
 	color: #fff;
+	img {
+		width: 32px;
+		height: 32px;
+		padding: 0 10px;
+	}
+	span {
+		position: relative;
+		bottom: 5px;
+	}
 }
 
 
@@ -343,7 +352,7 @@ footer {
 	}
 }
 
-@media screen and (max-width: 520px) {
+@media screen and (max-width: 560px) {
 	.hidden {
 		display: none;
 	}	
