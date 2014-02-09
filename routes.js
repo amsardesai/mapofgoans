@@ -129,7 +129,7 @@ module.exports = function(app, db, multiparty, xlsx, fs, geocoder) {
 					for (var j = 1; j < data.length; j++) {
 						var currentField = data[j];
 						var cityCheck = /^ *[A-Za-z \.\/]+, *[A-Za-z]{2} *$/;
-						var livesInCheck = currentField[livesInColumn] ? currentField[livesInColumn].value : null;
+						var livesInCheck = !currentField ? null : currentField[livesInColumn] ? currentField[livesInColumn].value : null;
 						
 						if (cityCheck.test(livesInCheck)) {
 							// City is in the format city, state (Toronto, ON)
