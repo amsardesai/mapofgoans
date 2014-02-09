@@ -14,12 +14,15 @@ var viewportMobileThreshold = 600;
 
 $(function() {
 
+	// Message for older browsers
 	if (!Modernizr.generatedcontent) {
 		var newDiv = $("<div class='notSupported'>");
 		var notice = "Your browser is too old to view this application. Please download a modern browser, such as Google Chrome or Mozilla Firefox.";
 		$("body").append(newDiv.text(notice));
 		return;
 	}
+
+	$(".search").placeholder();
 
 	// Viewport object
 	var reloadViewport, viewport;
@@ -203,10 +206,12 @@ $(function() {
 	var unselectMarkers = function() {
 		$(".cityInfo").empty().hide();
 		$(".pointerInfo").hide();
-
+		
 		if (searchQuery !== "") {
+			$(".help").hide();
+			$(".tooltip").addClass("resultsDisplayed");
+			$(".searchInfo").text("Searching for \"" + searchQuery + "\"");
 			if (personSearchCount > 0) {
-				$(".searchInfo").empty();
 				$(".peopleCount").text(allSearchResults.length + (allSearchResults.length == 1 ? " Goan found" : " Goans found"));
 				$(".city").text("in " + searchCities + (searchCities == 1 ? " city" : " cities"));
 				$(".pointerInfo").show();
@@ -216,15 +221,16 @@ $(function() {
 					cityInfo.append(createItemFromPerson(allSearchResults[k], true));
 				cityInfo.show();
 			} else {
-				$(".searchInfo").empty();
 				$(".peopleCount").text("No Goans found");
 				$(".city").empty();
 				$(".pointerInfo").show();
 				$(".cityInfo").empty().show();
 			}
+		} else {
+			$(".help").show();
+			$(".tooltip").removeClass("resultsDisplayed");
 		}
 
-		$(".tooltip").show();
 		dehighlightMarkers();
 	};
 
@@ -276,12 +282,15 @@ $(function() {
 			people.sort(function(a, b) {
 				return a.lastName < b.lastName ? -1 :
 					a.lastName > b.lastName ? 1 :
-					a.name < b.name ? -1 :
-					a.name > b.name ? 1 : 0;
+					a.firstName < b.firstName ? -1 :
+					a.firstName > b.firstName ? 1 :
+					a.middleName < b.middleName ? -1 :
+					a.middleName > b.middleName ? 1 : 0;
 			});
 
 			// Manipulate UI
-			$(".tooltip").hide();
+			$(".help").hide();
+			$(".tooltip").addClass("resultsDisplayed");
 			$(".searchInfo").text(searchQuery ? "Searching for \"" + searchQuery + "\"" : "");
 			$(".peopleCount").text(people.length + " Goan" + (people.length == 1 ? "" : "s"));
 			$(".city").text("in " + curCity.name);
@@ -300,7 +309,7 @@ $(function() {
 				clickToReturn
 					.attr("href", "#")
 					.addClass("returnToSearch")
-					.text("Click here to return to search")
+					.text("Click here to return to all results")
 					.click(function(e) {
 						e.preventDefault();
 						unselectMarkers();
@@ -384,8 +393,10 @@ $(function() {
 	var removeMarker = function(markerID) {
 		google.maps.event.clearInstanceListeners(cityData[markerID].marker);
 		cityData[markerID].marker.setMap(null);
-		cityData[markerID].tooltip.setMap(null);
-		cityData[markerID].tooltip = null;
+		if (!Modernizr.touch) {
+			cityData[markerID].tooltip.setMap(null);
+			cityData[markerID].tooltip = null;
+		}
 	};
 
 	// Remove all markers from the map
@@ -444,8 +455,8 @@ $(function() {
 			} else if ((isInMap && !isInBounds) || (weAreSearching && !isInResult && isInMap && isInBounds)) {
 				removeMarker(i);
 			}
-			
-			if (Modernizr.touch && isInMap && ++limitCounter > mobileMarkerLimit)
+
+			if (Modernizr.touch && cityData[i].marker.getMap() !== null && ++limitCounter > mobileMarkerLimit)
 				break;
 		}
 
@@ -455,8 +466,10 @@ $(function() {
 			allSearchResults.sort(function(a, b) {
 				return a.lastName < b.lastName ? -1 :
 					a.lastName > b.lastName ? 1 :
-					a.name < b.name ? -1 :
-					a.name > b.name ? 1 : 0;
+					a.firstName < b.firstName ? -1 :
+					a.firstName > b.firstName ? 1 :
+					a.middleName < b.middleName ? -1 :
+					a.middleName > b.middleName ? 1 : 0;
 			});
 		}
 
@@ -492,8 +505,7 @@ $(function() {
 					$.ajaxSetup({ cache: true });
 					$.getScript("/javascripts/social.js");
 					google.maps.event.addListener(map, "idle", reloadMarkers);
-					var justTyped;
-					var timer = 0;
+					var justTyped, timer = 0;
 					(justTyped = function() {
 						var enteredQuery = $.trim($(".search").val().toLowerCase());
 						if (searchQuery != enteredQuery) {

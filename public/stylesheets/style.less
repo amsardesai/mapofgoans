@@ -100,8 +100,10 @@ section {
 	.tooltip {
 		font-size: 110%;
 		margin-bottom: 15px;
-		p {
-			display: inline-block;
+		&.resultsDisplayed {
+			margin-bottom: 10px;
+		}
+		.help {
 			width: 234px;
 			padding: 0 20px;
 			margin: 15px 0 0 0;
@@ -198,7 +200,8 @@ section {
 			text-decoration: none;
 			text-align: center;
 			cursor: pointer;
-
+			display: block;
+			color: #fff;
 		}
 		&:after {
 			content: "";
@@ -265,7 +268,7 @@ footer {
 	section {
 		width: 230px;
 		.tooltip {
-			p {
+			.help {
 				width: 190px;
 			}
 			.search {
@@ -297,14 +300,19 @@ footer {
 		border-radius: 0;
 		display: block;
 		width: 100%;
+		.tooltip {
+			.help {
+				width: 90%;
+				padding: 0 5%;
+			}
+			.search {
+				margin: 15px auto 0 auto;
+				width: 200px;
+				display: block;
+			}
+		}
 		.cityInfo {
 			max-height: none;
-			.person:last-child {
-				border-bottom: 0;
-			}
-			&:after {
-				display: none;
-			}
 		}
 	}
 	footer {
