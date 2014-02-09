@@ -225,8 +225,8 @@ footer {
 	right: 10px;
 	display: inline-block;
 	width: @footer-width;
-	height: @footer-share-height + 35px;
-	.credits {
+	height: @footer-share-height + 75px;
+	.credits, .request {
 		display: block;
 		height: 15px;
 		padding: 6px 10px;
@@ -243,6 +243,10 @@ footer {
 			opacity: 1;
 			color: #fff;
 		}
+	}
+	.request {
+		border: 3px solid darken(@color-3, 20%);
+		height: 14px;
 	}
 	.sharepad {
 		border-radius: 5px;
@@ -321,19 +325,20 @@ footer {
 		position: static;
 		display: block;
 		width: 100%;
-		.credits {
+		.credits, .request {
 			opacity: 1;
 			border-radius: 0;
+			border: 0;
 			margin: 0;
 			background-color: @color-2;
-			padding: 10px 0;
+			padding: 10px 0 0 0;
 			color: #fff;
 		}
 		.sharepad {
 			opacity: 1;
 			border-radius: 0;
 			background-color: @color-2;
-			padding: 0 0 10px 0;
+			padding: 10px 0;
 		}
 	}
 }
