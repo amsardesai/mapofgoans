@@ -14,6 +14,13 @@ var viewportMobileThreshold = 600;
 
 $(function() {
 
+	// Scroll to 0
+	$(window).load(function() {
+		setTimeout(function() {
+			window.scrollTo(0, 1);
+		}, 0);
+	});
+
 	// Message for older browsers
 	if (!Modernizr.generatedcontent) {
 		var newDiv = $("<div class='notSupported'>");
@@ -588,7 +595,15 @@ $(function() {
 		});
 	});
 
-
+	if (navigator.userAgent.indexOf('iPhone') != -1 && !window.navigator.standalone) {
+		var addToHome = $("<div>").addClass("addToHome").html("<strong>Install this app on your phone!</strong><br />Tap the share icon below and then tap \"Add to Home Screen\". ");
+		var close = $("<a>").addClass("close").attr("href","javascript:void()").click(function(e) {
+			e.preventDefault();
+			addToHome.remove();
+		});
+		addToHome.append(close);
+		$("body").append(addToHome);
+	}
 
 
 });

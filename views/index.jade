@@ -3,6 +3,8 @@ html
 	head
 		title Map of Goans
 		meta(name='viewport',content='width=device-width, minimum-scale=1.0, maximum-scale=1.0')
+		meta(name='apple-mobile-web-app-capable',content='yes')
+		meta(name='apple-mobile-web-app-status-bar-style',content='black')
 		link(rel='stylesheet', href='/stylesheets/style.css')
 		script(type='text/javascript', src='//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js')
 		script(type='text/javascript', src='//cdnjs.cloudflare.com/ajax/libs/jquery-placeholder/2.0.7/jquery.placeholder.min.js')
@@ -14,8 +16,8 @@ html
 		#fb-root
 		header 
 			img(src='/images/27.png')
-			span Map of Goans 
-			span.hidden in North America
+			span Map of Goans
+			span.hidden  in North America
 			img(src='/images/27_flip.png')
 		#mapcanvas
 		section
@@ -32,4 +34,3 @@ html
 			a.credits(href="http://ankitsardesai.ca/") Created by Ankit Sardesai
 			.sharepad
 				.fb-like(data-href="http://mapofgoans.ankitsardesai.ca",data-width="170px",data-layout="button_count",data-action="like",data-show-faces="true",data-share="false")
-
