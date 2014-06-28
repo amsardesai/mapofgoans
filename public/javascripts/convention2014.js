@@ -253,8 +253,8 @@ $(function() {
 			// Manipulate UI
 			$(".help").hide();
 			$(".tooltip").addClass("resultsDisplayed");
-			$(".peopleCount").text(people.length + " Goan" + (people.length == 1 ? "" : "s"));
-			$(".city").text("in " + curCity.name);
+			$(".peopleCount").text(people.length + " " + (people.length == 1 ? "Person" : "People"));
+			$(".city").text("from " + curCity.name);
 			$(".pointerInfo").show();
 
 			var cityInfo = $(".cityInfo");
