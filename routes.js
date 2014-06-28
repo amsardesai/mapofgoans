@@ -27,6 +27,10 @@ module.exports = function(app, db, multiparty, xlsx, fs, geocoder) {
 		res.render("index");
 	});
 
+	app.get("/convention2014", function(req, res) {
+		res.render("convention2014");
+	});
+
 	app.get("/upload", function(req, res) {
 		res.render("upload");
 	});
@@ -34,6 +38,16 @@ module.exports = function(app, db, multiparty, xlsx, fs, geocoder) {
 	app.get("/data", function(req, res) {
 		res.header("Content-type", "text/json");
 		db.cities.find(function(err, data) {
+			data.sort(function(a, b) {
+				return a.people.length - b.people.length;
+			});
+			res.json(data);
+		});
+	});
+
+	app.get("/data/convention2014", function(req, res) {
+		res.header("Content-type", "text/json");
+		db.convention2014.find(function(err, data) {
 			data.sort(function(a, b) {
 				return a.people.length - b.people.length;
 			});
@@ -50,6 +64,7 @@ module.exports = function(app, db, multiparty, xlsx, fs, geocoder) {
 	});
 
 	app.post("/upload", function(req, res) {
+
 		var renderPage = function (errorMsg) {
 			res.render("upload", { showMsg: (errorMsg !== ""), error: errorMsg, success: !errorMsg });
 		};
@@ -78,6 +93,13 @@ module.exports = function(app, db, multiparty, xlsx, fs, geocoder) {
 				renderPage("You have entered the wrong password!");
 				return;
 			}
+
+			var database = (function(id) {
+				switch (id) {
+					case "convention2014": return db.convention2014;
+					default: return db.cities;
+				}
+			})(fields.db[0]);
 
 			// Password has been entered correctly
 			try {
@@ -122,7 +144,7 @@ module.exports = function(app, db, multiparty, xlsx, fs, geocoder) {
 					workingAtColumn == -1)
 					throw("");
 
-				db.cities.remove({}, function() {
+				database.remove({}, function() {
 
 					console.log("Starting processing...");
 
@@ -174,7 +196,7 @@ module.exports = function(app, db, multiparty, xlsx, fs, geocoder) {
 
 												console.log("Processed: " + fullName + " at " + parsedCity);
 												
-												db.cities.update({
+												database.update({
 													name: parsedCity,
 												}, {
 													$setOnInsert: {

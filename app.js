@@ -22,7 +22,7 @@ var env = app.get("env");
 
 // Database Connections
 var databaseUrl = process.env.MONGOHQ_URL;
-var collections = ["password", "cities"];
+var collections = ["password", "cities", "convention2014"];
 var db = mongojs.connect(databaseUrl, collections);
 
 // all environments
