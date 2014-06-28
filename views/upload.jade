@@ -19,6 +19,13 @@ html
 			.fields
 				h2 
 					strong Step 2: 
+					| Select database.
+				select(name="db")
+					option(value="cities") cities
+					option(value="convention2014") convention2014
+			.fields
+				h2 
+					strong Step 2: 
 					| Upload file. (.xls or .xlsx)
 				input(type="file",name="uploadFile")
 			.fields

@@ -1,0 +1,38 @@
+doctype html
+html
+	head
+		title Map of Goans
+		meta(name='viewport',content='width=device-width, minimum-scale=1.0, maximum-scale=1.0')
+		meta(name='apple-mobile-web-app-capable',content='yes')
+		meta(name='apple-mobile-web-app-status-bar-style',content='black')
+		meta(property="fb:admins",content="649329307")
+		meta(property="og:title",content="Map of Goans in North America")
+		meta(property="og:site_name",content="Map of Goans in North America")
+		meta(property="og:description",content="Map of Goans in North America")
+		meta(property="og:image",content="http://mapofgoans.ankitsardesai.ca/apple-touch-icon.png")
+		meta(property="og:type",content="website")
+		meta(property="og:url",content="http://mapofgoans.ankitsardesai.ca/")
+		link(rel='stylesheet', href='/stylesheets/convention2014.css')
+		script(type='text/javascript', src='//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js')
+		script(type='text/javascript', src='//cdnjs.cloudflare.com/ajax/libs/jquery-placeholder/2.0.7/jquery.placeholder.min.js')
+		script(type='text/javascript', src='http://maps.googleapis.com/maps/api/js?key=AIzaSyByK4l8jyTfjhjacWWkfQZZ32-PF417VWo&sensor=false')
+		script(type='text/javascript', src='/javascripts/modernizr.min.js')
+		script(type='text/javascript', src='/javascripts/tooltip.js')
+		script(type='text/javascript', src='/javascripts/convention2014.js')
+
+	body
+		#fb-root
+		#mapcanvas
+		section
+			.tooltip
+				a(href="http://goansinamerica.com/")
+					img(src="/images/convention2014.png",alt="Goan Convention 2014")
+				em Attendee Map
+				p.help Click on a point for more details.
+			.pointerInfo 
+				.searchInfo
+				.peopleCount
+				span.city
+			.cityInfo
+		footer 
+			a.credits(href="http://ankitsardesai.ca/") Created by Ankit Sardesai

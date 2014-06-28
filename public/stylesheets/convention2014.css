@@ -1,0 +1,336 @@
+@import url("http://fonts.googleapis.com/css?family=Open+Sans:300,400,600");
+/* CSS RESET */
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+canvas,
+details,
+embed,
+figure,
+figcaption,
+footer,
+header,
+hgroup,
+menu,
+nav,
+output,
+ruby,
+section,
+summary,
+time,
+mark,
+audio,
+video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+menu,
+nav,
+section {
+  display: block;
+}
+body {
+  line-height: 1;
+}
+ol,
+ul {
+  list-style: none;
+}
+blockquote,
+q {
+  quotes: none;
+}
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
+  content: '';
+  content: none;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+/* ACTUAL CSS */
+html {
+  height: 100%;
+}
+body {
+  height: 100%;
+  font-size: 15px;
+  font-weight: 300;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  background-color: #ede3d1;
+  font-family: "Open Sans", sans-serif;
+}
+#mapcanvas {
+  height: 100%;
+  min-height: 300px;
+}
+#mapcanvas .mapTooltip {
+  width: 130px;
+  background-color: #000;
+  opacity: 1;
+  color: #fff;
+  padding: 5px;
+  text-align: center;
+  border-radius: 5px;
+  font-size: 11px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+#mapcanvas .mapTooltip:before {
+  content: "";
+  position: absolute;
+  background-color: transparent;
+  height: 0;
+  width: 0;
+  bottom: -5px;
+  left: 50%;
+  margin-left: -3px;
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  border-top: 5px solid #000;
+}
+section {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 300px;
+  color: #000;
+  line-height: 1.5;
+  border: 3px solid #ae8844;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  background-color: #ede3d1;
+  box-shadow: 0 0 5px #000;
+}
+section .tooltip {
+  font-size: 100%;
+  margin-bottom: 15px;
+}
+section .tooltip img {
+  height: 50px;
+  display: block;
+  margin: 10px auto 0 auto;
+}
+section .tooltip em {
+  font-style: italic;
+  font-size: 110%;
+  display: block;
+  text-align: center;
+}
+section .tooltip .help {
+  margin-top: 10px;
+  display: block;
+  text-align: center;
+}
+section .tooltip.resultsDisplayed {
+  margin-bottom: 0;
+}
+section .pointerInfo {
+  font-size: 95%;
+  display: none;
+  padding: 0 0 10px 0;
+  margin-top: 5px;
+  text-align: center;
+  border-bottom: 3px solid #bb9551;
+}
+section .pointerInfo .peopleCount {
+  font-size: 150%;
+  font-weight: bold;
+}
+section .cityInfo {
+  overflow-y: auto;
+  max-height: 320px;
+  display: none;
+  background-color: #ede3d1;
+}
+section .cityInfo .person {
+  display: block;
+  min-height: 20px;
+  text-decoration: none;
+  color: #000;
+  position: relative;
+}
+section .cityInfo .person:nth-child(odd) {
+  background-color: #faf7f2;
+}
+section .cityInfo .person:nth-child(even) {
+  background-color: #ffffff;
+}
+section .cityInfo .person .name {
+  padding: 7px 15px;
+  font-size: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+section .cityInfo .person .name.smallerName {
+  padding-bottom: 0;
+}
+section .cityInfo .person .location {
+  font-size: 75%;
+  padding: 0 15px 10px 20px;
+}
+section .cityInfo .returnToSearch {
+  padding: 5px 0 0 0;
+  font-size: 90%;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  display: block;
+  color: #000;
+}
+section .cityInfo:after {
+  content: "";
+  display: block;
+  height: 0;
+  padding: 0;
+  border-top: 2px solid #ae8844;
+  margin: 8px 40%;
+}
+footer {
+  position: absolute;
+  bottom: 20px;
+  right: 10px;
+  display: inline-block;
+  width: 190px;
+  height: 25px;
+}
+footer .credits {
+  display: block;
+  height: 13px;
+  padding: 6px 10px;
+  margin-bottom: 10px;
+  text-align: center;
+  vertical-align: middle;
+  text-decoration: none;
+  color: #eee;
+  font-size: 13px;
+  border-radius: 5px;
+  background-color: #000;
+}
+.notSupported {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  padding: 20px;
+  background: #fff;
+}
+@media screen and (max-width: 600px) {
+  #mapcanvas {
+    height: 70%;
+  }
+  section {
+    position: static;
+    border-left: 0;
+    border-right: 0;
+    border-radius: 0;
+    display: block;
+    width: 100%;
+  }
+  section .tooltip .help {
+    width: 90%;
+    padding: 0 5%;
+  }
+  section .cityInfo {
+    max-height: none;
+  }
+  footer {
+    height: 25px;
+    position: static;
+    display: block;
+    width: 100%;
+  }
+  footer .credits {
+    opacity: 1;
+    border-radius: 0;
+    border: 0;
+    margin: 0;
+    background-color: #ede3d1;
+    padding: 10px 0;
+    color: #000;
+  }
+}
+@media screen and (max-width: 560px) {
+  .hidden {
+    display: none;
+  }
+}
